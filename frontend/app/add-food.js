@@ -101,8 +101,9 @@ export default function AddFood() {
     const locationOptions = ["fridge", "freezer", "pantry"];
     const insets = useSafeAreaInsets();
     const router = useRouter();
-    const { addFood } = useContext(FoodContext);
+    const { food, addFood } = useContext(FoodContext);
     const [keyboardVisible, setKeyboardVisible] = useState(false);
+    const [existingFoodOpen, setExistingFoodOpen] = useState(false);
 
     useEffect(() => {
         const showSub = Keyboard.addListener('keyboardDidShow', () => setKeyboardVisible(true));
@@ -114,6 +115,21 @@ export default function AddFood() {
         };
     }, []);
 
+    const loadExistingFood = (foodItem) => {
+        setName(foodItem.Food);
+        setBrand(foodItem.Brand || '');
+        setFilter(foodItem.Filter || '');
+        setDefaultLocation(foodItem.DefaultLocation || '');
+        setWeightPerUnit(foodItem.WeightPerUnit ? String(foodItem.WeightPerUnit) : '');
+        setNutritionalInfo({
+            Calories: foodItem.NutritionalInfo ? String(foodItem.NutritionalInfo.Calories) : '',
+            Carbs: foodItem.NutritionalInfo ? String(foodItem.NutritionalInfo.Carbs) : '',
+            Protein: foodItem.NutritionalInfo ? String(foodItem.NutritionalInfo.Protein) : '',
+            Fat: foodItem.NutritionalInfo ? String(foodItem.NutritionalInfo.Fat) : '',
+            Fiber: foodItem.NutritionalInfo ? String(foodItem.NutritionalInfo.Fiber) : ''
+        });
+    };
+
     const handleSubmit = () => {
         if (!name || !brand || !defaultLocation || !weightPerUnit || !nutritionalInfo.Calories) {
             Alert.alert('Faltan datos', 'Rellena nombre, marca, ubicación, peso y calorías.');
@@ -122,7 +138,9 @@ export default function AddFood() {
         
         addFood({ name, brand, filter, defaultLocation, weightPerUnit, quantity, expDate, servingsPerUnit, nutritionalInfo});
         router.back();
-    }
+    };
+
+
     return (
         <>
             <Stack.Screen options={{ title: 'Add Food Item', headerShown: true }} />
@@ -130,6 +148,24 @@ export default function AddFood() {
                 <KeyboardAvoidingView style={{ flex: 1 }}
                     behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
                     <ScrollView style={styles.scrollView} contentContainerStyle={[styles.container, { paddingBottom: keyboardVisible ? 250 : 16 }]} showsVerticalScrollIndicator={true}>
+
+                        <View style={styles.fieldGroup}>
+                            <Text style={styles.label}>¿Ya exite el alimento?</Text>
+                            <TouchableOpacity onPress={() => setExistingFoodOpen(!existingFoodOpen)} style={styles.filterButton}>
+                                <Text>Seleccionar de la lista</Text>
+                                <Ionicons name={existingFoodOpen ? "chevron-up" : "chevron-down"} size={16} />
+                            </TouchableOpacity>
+                            {existingFoodOpen && (
+                                <View style={styles.filterOptions}>
+                                    {food.map((f) => (
+                                        <TouchableOpacity key={f.id} onPress={() => { loadExistingFood(f); setExistingFoodOpen(false);}}>
+                                            <Text>{f.Food} - {f.Brand}</Text>
+                                        </TouchableOpacity>
+                                    ))}
+                                </View>
+                            )}
+                        </View>
+
                         <View style={styles.fieldGroup}>
                             <Text style={styles.label}>
                                 Nombre
