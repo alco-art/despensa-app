@@ -104,6 +104,8 @@ export default function AddFood() {
     const { food, addFood } = useContext(FoodContext);
     const [keyboardVisible, setKeyboardVisible] = useState(false);
     const [existingFoodOpen, setExistingFoodOpen] = useState(false);
+    const [filterFieldOpen, setFilterFieldOpen] = useState(false);
+    const filterOptions = ["Carne", "Pescado", "Lácteos", "Fruta y verdura", "Congelados", "Panadería", "Conservas", "Pasta y arroz", "Bebidas", "Snacks", "Limpieza", "Higiene", "Otros"];
 
     useEffect(() => {
         const showSub = Keyboard.addListener('keyboardDidShow', () => setKeyboardVisible(true));
@@ -167,7 +169,7 @@ export default function AddFood() {
 
                         <View style={styles.fieldGroup}>
                             <Text style={styles.label}>
-                                Nombre
+                                Nombre *
                             </Text>
                             <TextInput
                                 value={name}
@@ -179,7 +181,7 @@ export default function AddFood() {
 
                         <View style={styles.fieldGroup}>
                             <Text style={styles.label}>
-                                Marca
+                                Marca *
                             </Text>
                             <TextInput
                                 value={brand}
@@ -193,17 +195,24 @@ export default function AddFood() {
                             <Text style={styles.label}>
                                 Filtro
                             </Text>
-                            <TextInput
-                                value={filter}
-                                onChangeText={setFilter}
-                                placeholder="Ej: Bebida"
-                                style={styles.input}>
-                            </TextInput>
+                            <TouchableOpacity onPress={() => setFilterFieldOpen(!filterFieldOpen)} style={styles.filterButton}>
+                                <Text>{filter ? filter : 'Selecciona categoría'}</Text>
+                                <Ionicons name={filterFieldOpen ? "chevron-up" : "chevron-down"} size={16}/>
+                            </TouchableOpacity>
+                            {filterFieldOpen && (
+                                <View style={styles.filterOptions}>
+                                    {filterOptions.map((f, i) => (
+                                        <TouchableOpacity key={i} onPress={() => { setFilter(f); setFilterFieldOpen(false)}}>
+                                            <Text>{f}</Text>
+                                        </TouchableOpacity>
+                                    ))}
+                                </View>
+                            )}
                         </View>
 
                         <View style={styles.fieldGroup}>
                             <Text style={styles.label}>
-                                Ubicación por defecto
+                                Ubicación por defecto *
                             </Text>
                             <TouchableOpacity onPress={() => setLocationOpen(!locationOpen)} style={styles.filterButton}>
                                 <Text>{defaultLocation ? defaultLocation : 'Selecciona ubicación'}</Text>
@@ -222,7 +231,7 @@ export default function AddFood() {
 
                         <View style={styles.fieldGroup}>
                             <Text style={styles.label}>
-                                Peso por unidad en g {/*Sirve para calcular la nutriInfo */}
+                                Peso por unidad en g * {/*Sirve para calcular la nutriInfo */}
                             </Text>
                             <TextInput
                                 value={weightPerUnit}
@@ -287,7 +296,7 @@ export default function AddFood() {
                                 Información nutricional
                             </Text>
                             <View style={styles.fieldGroup}>
-                                <Text style={styles.label}>Calorías (por 100g)</Text>
+                                <Text style={styles.label}>Calorías (por 100g) *</Text>
                                 <TextInput
                                     value={nutritionalInfo.Calories}
                                     onChangeText={(text) => setNutritionalInfo({ ...nutritionalInfo, Calories: text })}
