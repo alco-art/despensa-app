@@ -8,7 +8,7 @@ export default function RootLayout() {
         initDatabase();
     }, []);
 
-    
+
     return (
         <FoodProvider>
             <Stack screenOptions={{ headerShown: false}}>

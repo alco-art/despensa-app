@@ -130,13 +130,12 @@ export default function AddFood() {
         });
     };
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         if (!name || !brand || !defaultLocation || !weightPerUnit || !nutritionalInfo.Calories) {
             Alert.alert('Faltan datos', 'Rellena nombre, marca, ubicación, peso y calorías.');
             return;
         }
-        
-        addFood({ name, brand, filter, defaultLocation, weightPerUnit, quantity, expDate, servingsPerUnit, nutritionalInfo});
+        await addFood({ name, brand, filter, defaultLocation, weightPerUnit, quantity, expDate, servingsPerUnit, nutritionalInfo});
         router.back();
     };
 

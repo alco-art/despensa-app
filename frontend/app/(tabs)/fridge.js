@@ -86,7 +86,7 @@ export default function Fridge() {
     const [infoModalVisible, setInfoModalVisible] = useState(false); //se ve modal o no
     const [selectedFoodInfo, setSelectedFoodInfo] = useState(null); //qué alimento se ve
 
-    const { food, setFood, lots, setLots, decreaseServing, increaseServing, deleteFood } = useContext(FoodContext);
+    const { food, setFood, lots, setLots, decreaseServing, increaseServing, deleteFood, addToShoppingList } = useContext(FoodContext);
 
     const sortTable = (column) => {
         console.log('Tocado:', column);
@@ -175,7 +175,11 @@ export default function Fridge() {
                                 </View>
                                 {expandedIndex === lot.id && (
                                     <View style={styles.expandedRow}>
-                                        <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 40 }}>
+                                        <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 30 }}>
+                                            <TouchableOpacity onPress={() => { setSelectedFoodInfo(foodItem); setInfoModalVisible(true) }} style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                                <Ionicons name="information-circle-outline" size={20} />
+                                                <Text style={styles.expandedText}>Info</Text>
+                                            </TouchableOpacity>
                                             <TouchableOpacity onPress={() => decreaseServing(lot.id)} style={{ flexDirection: 'row', alignItems: 'center' }}>
                                                 <Ionicons name="remove-circle-outline" size={20} />
                                                 <Text style={styles.expandedText}>Restar serving</Text>
@@ -186,9 +190,9 @@ export default function Fridge() {
                                             </TouchableOpacity>
                                         </View>
                                         <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 40 }}>
-                                            <TouchableOpacity onPress={() => { setSelectedFoodInfo(foodItem); setInfoModalVisible(true) }} style={{ flexDirection: 'row', alignItems: 'center', marginTop: 12 }}>
-                                                <Ionicons name="information-circle-outline" size={20} />
-                                                <Text style={styles.expandedText}>Info</Text>
+                                            <TouchableOpacity onPress={() => addToShoppingList(foodItem.id)} style={{ flexDirection: 'row', alignItems: 'center', marginTop: 12 }}>
+                                                <Ionicons name="cart-outline" size={20} />
+                                                <Text style={styles.expandedText}>Añadir a la compra</Text>
                                             </TouchableOpacity>
                                             <TouchableOpacity onPress={() => deleteFood(lot.id)} style={{ flexDirection: 'row', alignItems: 'center', marginTop: 12 }}>
                                                 <Ionicons name="trash-outline" size={20} />

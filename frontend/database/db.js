@@ -15,7 +15,8 @@ export const initDatabase = () => {
             carbs REAL,
             protein REAL,
             fat REAL,
-            fiber REAL
+            fiber REAL,
+            inShoppingList INTEGER DEFAULT 0
         );
     `);
 
