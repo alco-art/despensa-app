@@ -33,4 +33,18 @@ export const initDatabase = () => {
             FOREIGN KEY (foodId) REFERENCES Food(id)
         );
     `);
+
+    db.execSync(`
+        CREATE TABLE IF NOT EXISTS Item (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            brand TEXT NOT NULL,
+            store TEXT NOT NULL,
+            filter TEXT NOT NULL,
+            quantity INTEGER DEFAULT 1,
+            weight REAL,
+            inShoppingList INTEGER DEFAULT 0,
+            deleted INTEGER DEFAULT 0
+        );
+    `);
 }

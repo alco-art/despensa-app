@@ -105,7 +105,7 @@ export default function AddFood() {
     const [keyboardVisible, setKeyboardVisible] = useState(false);
     const [existingFoodOpen, setExistingFoodOpen] = useState(false);
     const [filterFieldOpen, setFilterFieldOpen] = useState(false);
-    const filterOptions = ["Carne", "Pescado", "Lácteos", "Fruta y verdura", "Congelados", "Panadería", "Conservas", "Pasta y arroz", "Bebidas", "Snacks", "Limpieza", "Higiene", "Otros"];
+    const filterOptions = ["Carne", "Pescado", "Lácteos", "Fruta y verdura", "Congelados", "Panadería", "Conservas", "Pasta y arroz", "Bebidas", "Snacks", "Otros"];
 
     useEffect(() => {
         const showSub = Keyboard.addListener('keyboardDidShow', () => setKeyboardVisible(true));
@@ -193,7 +193,7 @@ export default function AddFood() {
 
                         <View style={styles.fieldGroup}>
                             <Text style={styles.label}>
-                                Filtro
+                                Filtro *
                             </Text>
                             <TouchableOpacity onPress={() => setFilterFieldOpen(!filterFieldOpen)} style={styles.filterButton}>
                                 <Text>{filter ? filter : 'Selecciona categoría'}</Text>
