@@ -1,10 +1,34 @@
-    import { useState } from 'react';
-    import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+    import { useState, useContext } from 'react';
+    import { View, Text, StyleSheet, TouchableOpacity,Modal } from 'react-native';
     import { Ionicons } from '@expo/vector-icons';
-    import { useContext } from 'react';
     import FoodContext from '../../context/FoodContext';
 
     const styles = StyleSheet.create({
+        modalOverlay: {
+            flex: 1,
+            backgroundColor: 'rgba(0,0,0,0.5)',
+            justifyContent: 'center',
+            alignItems: 'center'
+        },
+        modalContent: {
+            backgroundColor: '#fff',
+            borderRadius: 10,
+            padding: 20,
+            width: '85%',
+            gap: 6
+        },
+        modalTitle: {
+            fontSize: 18,
+            fontWeight: 'bold',
+            marginBottom: 8
+        },
+        modalCloseButton: {
+            backgroundColor: '#4a5a6a',
+            padding: 10,
+            borderRadius: 6,
+            alignItems: 'center',
+            marginTop: 12
+        },
         container: {
             flex: 1,
             paddingHorizontal: 16,
@@ -59,6 +83,8 @@
         const [ expandedIndex, setExpandedIndex ] = useState(null);
         const [ filterOpen, setFilterOpen ] = useState(false);
         const [ activeFilter, setActiveFilter ] = useState(null);
+        const [infoModalVisible, setInfoModalVisible]  = useState(false); //se ve modal o no
+        const [selectedFoodInfo, setSelectedFoodInfo] = useState(null); //qué alimento se ve
 
         const { food, setFood, lots, setLots, decreaseServing, increaseServing, deleteFood } = useContext(FoodContext);
         
@@ -159,16 +185,49 @@
                                                     <Text style={styles.expandedText}>Añadir serving</Text>
                                                 </TouchableOpacity>
                                             </View>
-                                            <TouchableOpacity onPress={() => deleteFood(lot.id)} style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: 12}}>
-                                                <Ionicons name="trash-outline" size={20}/>
-                                                <Text style={styles.expandedText}>Eliminar alimento</Text>
-                                            </TouchableOpacity>
+                                            <View style={{flexDirection: 'row', justifyContent: 'center', gap: 40}}>
+                                                <TouchableOpacity onPress={() => { setSelectedFoodInfo(foodItem); setInfoModalVisible(true) }} style={{flexDirection: 'row', alignItems: 'center', marginTop: 12}}>
+                                                    <Ionicons name="information-circle-outline" size={20}/>
+                                                    <Text style={styles.expandedText}>Info</Text>
+                                                </TouchableOpacity>
+                                                <TouchableOpacity onPress={() => deleteFood(lot.id)} style={{flexDirection: 'row', alignItems: 'center', marginTop: 12}}>
+                                                    <Ionicons name="trash-outline" size={20}/>
+                                                    <Text style={styles.expandedText}>Eliminar alimento</Text>
+                                                </TouchableOpacity>
+                                            </View>
+                                            
                                         </View>
                                     )}
                                 </TouchableOpacity>
                             )
                         )
                     })}
+
+                    <Modal visible={infoModalVisible} transparent={true} animationType="fade">
+                        <View style={styles.modalOverlay}>
+                            <View style={styles.modalContent}>
+                                {selectedFoodInfo && (
+                                    <>
+                                        <Text style={styles.modalTitle}>{selectedFoodInfo.Food} - {selectedFoodInfo.Brand}</Text>
+                                        <Text>Filtro: {selectedFoodInfo.Filter}</Text>
+                                        <Text>Ubicación por defecto: {selectedFoodInfo.DefaultLocation}</Text>
+                                        {selectedFoodInfo.NutritionalInfo && (
+                                            <>
+                                                <Text>Calorías: {selectedFoodInfo.NutritionalInfo.Calories} / 100g</Text>
+                                                <Text>Carbohidratos: {selectedFoodInfo.NutritionalInfo.Carbs}g</Text>
+                                                <Text>Proteína: {selectedFoodInfo.NutritionalInfo.Protein}g</Text>
+                                                <Text>Grasa: {selectedFoodInfo.NutritionalInfo.Fat}g</Text>
+                                                <Text>Fibra: {selectedFoodInfo.NutritionalInfo.Fiber}g</Text>
+                                            </>
+                                        )}
+                                        <TouchableOpacity onPress={() => setInfoModalVisible(false)} style={styles.modalCloseButton}>
+                                            <Text style={{color:'#fff'}}>Cerrar</Text>
+                                        </TouchableOpacity>
+                                    </>
+                                )}
+                            </View>
+                        </View>
+                    </Modal>
                 </View>
             </View>
         );

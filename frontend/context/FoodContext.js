@@ -6,19 +6,13 @@ export function FoodProvider({ children }) {
     const [food, setFood] = useState([
         {id: 1, Food: "Carne picada", Brand: "Hacendado", Filter: "Carne"},
         {id: 2, Food: "Huevos", Brand: "Hacendado", Filter: "Huevos"},
-        {id: 3, Food: "Zumo", Brand: "Hacendado", Filter: "Líquido"},
-        {id: 4, Food: "Carne picada", Brand: "Hacendado", Filter: "Carne"},
-        {id: 5, Food: "Huevos", Brand: "Hacendado", Filter: "Huevos"},
-        {id: 6, Food: "Zumo", Brand: "Hacendado", Filter: "Líquido"}
+        {id: 3, Food: "Zumo", Brand: "Hacendado", Filter: "Líquido"}
     ])
 
     const [lots, setLots] = useState([
         {id: 101, FoodId: 1, Location: "freezer", Servings: 2, TotalServings: 4, Percentage: 100, ExpDate: "2026-09-12", Deleted: false},
         {id: 102, FoodId: 2, Location: "fridge", Servings: 8, TotalServings: 12, Percentage: 40, ExpDate: "2026-07-22", Deleted: false},
-        {id: 103, FoodId: 3, Location: "pantry", Servings: 0, TotalServings: 0, Percentage: 0, ExpDate: "2027-03-12", Deleted: false},
-        {id: 104, FoodId: 1, Location: "freezer", Servings: 2, TotalServings: 4, Percentage: 100, ExpDate: "2026-09-12", Deleted: false},
-        {id: 105, FoodId: 2, Location: "fridge", Servings: 8, TotalServings: 12, Percentage: 40, ExpDate: "2026-07-22", Deleted: false},
-        {id: 106, FoodId: 3, Location: "pantry", Servings: 0, TotalServings: 0, Percentage: 0, ExpDate: "2027-03-12", Deleted: false}
+        {id: 103, FoodId: 3, Location: "pantry", Servings: 0, TotalServings: 0, Percentage: 0, ExpDate: "2027-03-12", Deleted: false}
     ])
 
     const decreaseServing = (lotId) => {
