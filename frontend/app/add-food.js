@@ -1,8 +1,11 @@
 import { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, ScrollView, Platform } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, ScrollView, Platform, Alert } from "react-native";
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
-import { Stack } from "expo-router";
+import { Stack, useRouter } from "expo-router";
+import { useContext } from "react";
+import DateTimePicker from '@react-native-community/datetimepicker';
+import FoodContext from "../context/FoodContext";
 
 const styles = StyleSheet.create({
     scrollView: {
@@ -80,9 +83,14 @@ const styles = StyleSheet.create({
 
 export default function AddFood() {
     const [name, setName] = useState('');
+    const [brand, setBrand] = useState('');
     const [filter, setFilter] = useState('');
     const [defaultLocation, setDefaultLocation] = useState('');
     const [weightPerUnit, setWeightPerUnit] = useState('');
+    const [quantity, setQuantity] = useState('');
+    const [expDate, setExpDate] = useState(new Date());
+    const [showPicker, setShowPicker] = useState(false);
+    const [servingsPerUnit, setServingsPerUnit] = useState('');
     const [nutritionalInfo, setNutritionalInfo] = useState({
         Calories: '',
         Carbs: '',
@@ -93,7 +101,18 @@ export default function AddFood() {
     const [locationOpen, setLocationOpen] = useState(false);
     const locationOptions = ["fridge", "freezer", "pantry"];
     const insets = useSafeAreaInsets();
+    const router = useRouter();
+    const { addFood } = useContext(FoodContext);
 
+    const handleSubmit = () => {
+        if (!name || !brand || !defaultLocation || !weightPerUnit || !nutritionalInfo.Calories) {
+            Alert.alert('Faltan datos', 'Rellena nombre, marca, ubicación, peso y calorías.');
+            return;
+        }
+        
+        addFood({ name, brand, filter, defaultLocation, weightPerUnit, quantity, expDate, servingsPerUnit, nutritionalInfo});
+        router.back();
+    }
     return (
         <>
             <Stack.Screen options={{ title: 'Add Food Item', headerShown: true }} />
@@ -109,6 +128,18 @@ export default function AddFood() {
                                 value={name}
                                 onChangeText={setName}
                                 placeholder="Ej: Carne picada"
+                                style={styles.input}>
+                            </TextInput>
+                        </View>
+
+                        <View style={styles.fieldGroup}>
+                            <Text style={styles.label}>
+                                Marca
+                            </Text>
+                            <TextInput
+                                value={brand}
+                                onChangeText={setBrand}
+                                placeholder="Ej: Hacendado"
                                 style={styles.input}>
                             </TextInput>
                         </View>
@@ -146,12 +177,61 @@ export default function AddFood() {
 
                         <View style={styles.fieldGroup}>
                             <Text style={styles.label}>
-                                Peso por unidad en g
+                                Peso por unidad en g {/*Sirve para calcular la nutriInfo */}
                             </Text>
                             <TextInput
                                 value={weightPerUnit}
                                 onChangeText={setWeightPerUnit}
                                 placeholder="Ej: 250 (en g/l)"
+                                style={styles.input}
+                                keyboardType="numeric">
+                            </TextInput>
+                        </View>
+
+                        <View style={styles.fieldGroup}>
+                            <Text style={styles.label}>
+                                Cantidad de unidades
+                            </Text>
+                            <TextInput
+                                value={quantity}
+                                onChangeText={setQuantity}
+                                placeholder="Ej: 4"
+                                style={styles.input}
+                                keyboardType="numeric">
+                            </TextInput>
+                        </View>
+
+                        <View style={styles.fieldGroup}>
+                            <Text style={styles.label}>
+                                Fecha de caducidad
+                            </Text>
+                            <TouchableOpacity onPress={() => setShowPicker(true)} style={styles.input}>
+                                <Text>{expDate.toLocaleDateString('es-ES')}</Text>
+                            </TouchableOpacity>
+
+                            {showPicker && (
+                                <DateTimePicker
+                                    value={expDate}
+                                    mode="date"
+                                    display="spinner"
+                                    onChange={(event, selectedDate) => {
+                                        setShowPicker(false);
+                                        if (selectedDate) setExpDate(selectedDate);
+                                    }}
+                                />
+                            )
+
+                            }
+                        </View>
+
+                        <View style={styles.fieldGroup}>
+                            <Text style={styles.label}>
+                                Servings por unidad
+                            </Text>
+                            <TextInput
+                                value={servingsPerUnit}
+                                onChangeText={setServingsPerUnit}
+                                placeholder="Ej: 4 (en cuánto divido una bandeja de carne)"
                                 style={styles.input}
                                 keyboardType="numeric">
                             </TextInput>
@@ -220,10 +300,10 @@ export default function AddFood() {
                 </KeyboardAvoidingView>
 
                 <View style={[styles.buttonBar, { paddingBottom: insets.bottom > 0 ? insets.bottom * 0.4 : 8 }]}>
-                    <TouchableOpacity style={styles.cancelButton} onPress={() => {/*Volver atrás */ }}>
+                    <TouchableOpacity style={styles.cancelButton} onPress={() => router.back()}>
                         <Text>Cancel</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.submitButton} onPress={() => {/*Guardar */ }}>
+                    <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
                         <Text style={{ color: '#fff' }}>Submit</Text>
                     </TouchableOpacity>
                 </View>

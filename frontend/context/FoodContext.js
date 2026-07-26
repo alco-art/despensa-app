@@ -4,12 +4,12 @@ const FoodContext = createContext();
 
 export function FoodProvider({ children }) {
     const [food, setFood] = useState([
-        {id: 1, Food: "Carne picada", Filter: "Carne"},
-        {id: 2, Food: "Huevos", Filter: "Huevos"},
-        {id: 3, Food: "Zumo", Filter: "Líquido"},
-        {id: 4, Food: "Carne picada", Filter: "Carne"},
-        {id: 5, Food: "Huevos", Filter: "Huevos"},
-        {id: 6, Food: "Zumo", Filter: "Líquido"}
+        {id: 1, Food: "Carne picada", Brand: "Hacendado", Filter: "Carne"},
+        {id: 2, Food: "Huevos", Brand: "Hacendado", Filter: "Huevos"},
+        {id: 3, Food: "Zumo", Brand: "Hacendado", Filter: "Líquido"},
+        {id: 4, Food: "Carne picada", Brand: "Hacendado", Filter: "Carne"},
+        {id: 5, Food: "Huevos", Brand: "Hacendado", Filter: "Huevos"},
+        {id: 6, Food: "Zumo", Brand: "Hacendado", Filter: "Líquido"}
     ])
 
     const [lots, setLots] = useState([
@@ -55,8 +55,61 @@ export function FoodProvider({ children }) {
         setLots(updatedFood);
     }
 
+    const addFood = (formData) => {
+        const { name, brand, filter, defaultLocation, weightPerUnit, quantity, expDate, servingsPerUnit, nutritionalInfo } = formData;
+        //Comprobar si el alimento ya existe por nombre
+        let existingFood = food.find(f => f.Food.toLowerCase() === name.toLowerCase() && f.Brand.toLowerCase() === brand.toLowerCase());
+        let foodId;
+
+        if (existingFood) {
+            foodId = existingFood.id;
+        }
+        else {
+            const newFoodId = food.length > 0 ? Math.max(...food.map(f => f.id)) + 1 : 1;
+            const newFood = {
+                id: newFoodId,
+                Food: name,
+                Brand: brand,
+                Filter: filter || "Sin categoría",
+                DefaultLocation: defaultLocation,
+                weightPerUnit: Number(weightPerUnit),
+                NutritionalInfo: {
+                    Calories: Number(nutritionalInfo.Calories),
+                    Carbs: Number(nutritionalInfo.Carbs),
+                    Protein: Number(nutritionalInfo.Protein),
+                    Fat: Number(nutritionalInfo.Fat),
+                    Fiber: Number(nutritionalInfo.Fiber)
+                }
+            };
+            setFood([...food, newFood]);
+            foodId = newFoodId;
+        }
+
+        //Crear N lotes idénticos
+        const maxLotId = lots.length > 0 ? Math.max(...lots.map(l => l.id)) : 100;
+        const newLots = [];
+        const expDateFormatted = expDate.toISOString().split('T')[0];
+        const totalServ = Number(servingsPerUnit) || 1;
+
+        const totalQuantity = Numer(quantity) || 1;
+
+        for (let i = 1; i <= totalQquantity; i++) {
+            newLots.push({
+                id: maxLotId + i,
+                FoodId: foodId,
+                Location: defaultLocation,
+                Servings: totalServ,
+                TotalServings: totalServ,
+                Percentage: 100,
+                ExpDate: expDateFormatted,
+                Deleted: false
+            });
+        }
+        setLots([...lots, ...newLots]);
+    }
+
     return (
-        <FoodContext.Provider value={{ food, setFood, lots, setLots, decreaseServing, increaseServing, deleteFood }}>
+        <FoodContext.Provider value={{ food, setFood, lots, setLots, decreaseServing, increaseServing, deleteFood, addFood }}>
             {children}
         </FoodContext.Provider>
     );
