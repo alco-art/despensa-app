@@ -1,9 +1,8 @@
-import { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, ScrollView, Platform, Alert } from "react-native";
+import { useState, useContext, useEffect } from "react";
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, ScrollView, Platform, Alert, Keyboard } from "react-native";
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { Stack, useRouter } from "expo-router";
-import { useContext } from "react";
 import DateTimePicker from '@react-native-community/datetimepicker';
 import FoodContext from "../context/FoodContext";
 
@@ -12,7 +11,7 @@ const styles = StyleSheet.create({
         flex: 1
     },
     container: {
-        padding: 16
+        padding: 16,
     },
     fieldGroup: {
         marginBottom: 16
@@ -103,6 +102,17 @@ export default function AddFood() {
     const insets = useSafeAreaInsets();
     const router = useRouter();
     const { addFood } = useContext(FoodContext);
+    const [keyboardVisible, setKeyboardVisible] = useState(false);
+
+    useEffect(() => {
+        const showSub = Keyboard.addListener('keyboardDidShow', () => setKeyboardVisible(true));
+        const hideSub = Keyboard.addListener('keyboardDidHide', () => setKeyboardVisible(false));
+
+        return () => {
+            showSub.remove();
+            hideSub.remove();
+        };
+    }, []);
 
     const handleSubmit = () => {
         if (!name || !brand || !defaultLocation || !weightPerUnit || !nutritionalInfo.Calories) {
@@ -118,8 +128,8 @@ export default function AddFood() {
             <Stack.Screen options={{ title: 'Add Food Item', headerShown: true }} />
             <SafeAreaView style={{ flex: 1 }} edges={['bottom']}>
                 <KeyboardAvoidingView style={{ flex: 1 }}
-                    behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-                    <ScrollView style={styles.scrollView} contentContainerStyle={styles.container} showsVerticalScrollIndicator={true}>
+                    behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+                    <ScrollView style={styles.scrollView} contentContainerStyle={[styles.container, { paddingBottom: keyboardVisible ? 250 : 16 }]} showsVerticalScrollIndicator={true}>
                         <View style={styles.fieldGroup}>
                             <Text style={styles.label}>
                                 Nombre

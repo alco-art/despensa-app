@@ -91,9 +91,9 @@ export function FoodProvider({ children }) {
         const expDateFormatted = expDate.toISOString().split('T')[0];
         const totalServ = Number(servingsPerUnit) || 1;
 
-        const totalQuantity = Numer(quantity) || 1;
+        const totalQuantity = Number(quantity) || 1;
 
-        for (let i = 1; i <= totalQquantity; i++) {
+        for (let i = 1; i <= totalQuantity; i++) {
             newLots.push({
                 id: maxLotId + i,
                 FoodId: foodId,
