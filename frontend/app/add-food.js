@@ -11,7 +11,9 @@ const styles = StyleSheet.create({
         flex: 1
     },
     container: {
-        padding: 16,
+        paddingTop: 8,
+        paddingLeft: 12,
+        paddingRight: 12
     },
     fieldGroup: {
         marginBottom: 16
@@ -55,6 +57,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-around',
         alignItems: 'center',
         borderTopWidth: 1,
+        paddingBottom: 8,
         borderTopColor: '#ddd',
         backgroundColor: '#ffffff',
         paddingVertical: 8
@@ -71,10 +74,11 @@ const styles = StyleSheet.create({
     },
     submitButton: {
         flex: 1,
-        marginLeft: 8,
-        marginRight: 4,
+        marginLeft: 4,
+        marginRight: 8,
         paddingVertical: 10,
         borderRadius: 6,
+        borderWidth: 1,
         backgroundColor: '#4a5a6a',
         alignItems: 'center'
     }
@@ -148,7 +152,7 @@ export default function AddFood() {
             <SafeAreaView style={{ flex: 1 }} edges={['bottom']}>
                 <KeyboardAvoidingView style={{ flex: 1 }}
                     behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-                    <ScrollView style={styles.scrollView} contentContainerStyle={[styles.container, { paddingBottom: keyboardVisible ? 250 : 16 }]} showsVerticalScrollIndicator={true}>
+                    <ScrollView style={styles.scrollView} contentContainerStyle={[styles.container, { paddingBottom: keyboardVisible ? 250 : 0 }]} showsVerticalScrollIndicator={true}>
 
                         <View style={styles.fieldGroup}>
                             <Text style={styles.label}>¿Ya exite el alimento?</Text>
@@ -353,7 +357,8 @@ export default function AddFood() {
                     </ScrollView>
                 </KeyboardAvoidingView>
 
-                <View style={[styles.buttonBar, { paddingBottom: insets.bottom > 0 ? insets.bottom * 0.4 : 8 }]}>
+                <View style={styles.buttonBar}>
+                    {/* style={[styles.buttonBar, { paddingBottom: insets.bottom > 0 ? insets.bottom * 0.4 : 8 }]} */}
                     <TouchableOpacity style={styles.cancelButton} onPress={() => router.back()}>
                         <Text>Cancel</Text>
                     </TouchableOpacity>

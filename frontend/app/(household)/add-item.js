@@ -5,8 +5,9 @@ import HouseholdContext from '../../context/HouseholdContext';
 
 const styles = StyleSheet.create({
     container: {
-        padding: 16,
-        marginTop: 20
+        paddingTop: 8,
+        paddingLeft: 12,
+        paddingRight: 12
     },
     fieldGroup: {
         marginBottom: 16
@@ -43,11 +44,10 @@ const styles = StyleSheet.create({
         backgroundColor: '#4a5a6a',
         padding: 12,
         borderRadius: 6,
-        alignItems: 'center',
-        marginTop: 8
+        alignItems: 'center'
     },
     buttonBar: {
-        padding: 16,
+        padding: 8,
         borderTopWidth: 1,
         borderTopColor: '#ddd',
         backgroundColor: '#ffffff'
@@ -99,7 +99,7 @@ export default function AddItem() {
     return (
         <KeyboardAvoidingView style={{ flex: 1 }}
             behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-            <ScrollView style={{ flex: 1 }} contentContainerStyle={[styles.container, { paddingBottom: keyboardVisible ? 250 : 16 }]} showsVerticalScrollIndicator={true}>
+            <ScrollView style={{ flex: 1 }} contentContainerStyle={[styles.container, { paddingBottom: keyboardVisible ? 250 : 0 }]} showsVerticalScrollIndicator={true}>
 
                 <View style={styles.fieldGroup}>
                     <Text style={styles.label}>¿Ya existe el artículo?</Text>
