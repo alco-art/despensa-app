@@ -28,7 +28,8 @@ export function FoodProvider({ children }) {
                 Protein: f.protein,
                 Fat: f.fat,
                 Fiber: f.fiber
-            }
+            },
+            InShoppingList: f.inShoppingList === 1
         }));
 
         const transformedLots = lotResult.map(l => ({
