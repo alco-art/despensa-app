@@ -153,7 +153,6 @@ export default function AddFood() {
                 <KeyboardAvoidingView style={{ flex: 1 }}
                     behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
                     <ScrollView style={styles.scrollView} contentContainerStyle={[styles.container, { paddingBottom: keyboardVisible ? 250 : 0 }]} showsVerticalScrollIndicator={true}>
-
                         <View style={styles.fieldGroup}>
                             <Text style={styles.label}>¿Ya exite el alimento?</Text>
                             <TouchableOpacity onPress={() => setExistingFoodOpen(!existingFoodOpen)} style={styles.filterButton}>

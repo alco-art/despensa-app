@@ -1,5 +1,5 @@
 import { useState, useContext } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import FoodContext from '../../context/FoodContext';
 import HouseholdContext from '../../context/HouseholdContext';
@@ -10,13 +10,16 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16,
         marginTop: 20
     },
+    scrollview: {
+        flex: 1
+    },
     sectionTitle: {
         fontSize: 16,
         fontWeight: 'bold',
         backgroundColor: '#4a5a6a',
         color: '#ffffff',
         padding: 8,
-        marginTop: 12,
+        marginTop: 4,
         borderRadius: 4
     },
     row: {
@@ -24,6 +27,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         padding: 10,
         borderBottomWidth: 1,
+        marginBottom: 4,
         borderBottomColor: '#eee'
     },
     itemText: {
@@ -93,7 +97,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#e0edf1',
         padding: 10,
         borderRadius: 6,
-        marginBottom: 8
+        marginBottom: 1
     },
     filterOptions: {
         backgroundColor: '#f8f9fa',
@@ -195,101 +199,103 @@ export default function ShoppingList() {
     };
 
     return (
-        <View style={styles.container}>
-            {!shoppingMode && (
-                <TouchableOpacity style={styles.shopButton} onPress={startShopping}>
-                    <Ionicons name="cart-outline" size={20} color={"#fff"} />
-                    <Text style={{ color: '#fff', marginLeft: 8 }}>Ir a comprar</Text>
-                </TouchableOpacity>
-            )}
-
-            {shoppingMode && (
-                <View style={{ flexDirection: 'row', gap: 12, marginBottom: 12 }}>
-                    <TouchableOpacity style={styles.cancelShopButton} onPress={cancelShopping}>
-                        <Text>Cancelar</Text>
+        <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={true}>
+            <View style={styles.container}>
+                {!shoppingMode && (
+                    <TouchableOpacity style={styles.shopButton} onPress={startShopping}>
+                        <Ionicons name="cart-outline" size={20} color={"#fff"} />
+                        <Text style={{ color: '#fff', marginLeft: 8 }}>Ir a comprar</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.finishShopButton} onPress={() => { /** */ }}>
-                        <Text style={{ color: '#fff' }}>Terminar la compra</Text>
-                    </TouchableOpacity>
-                </View>
-            )}
+                )}
 
-            {shoppingMode && uniqueStores.length > 0 && (
-                <View style={styles.fieldGroup}>
-                    <TouchableOpacity onPress={() => setStoreFilterOpen(!storeFilterOpen)} style={styles.filterButton}>
-                        <Text>{activeStore ? activeStore : "Filtrar por tienda"}</Text>
-                        <Ionicons name={storeFilterOpen ? "chevron-up" : "chevron-down"} size={16} />
-                    </TouchableOpacity>
-                    {storeFilterOpen && (
-                        <View style={styles.filterOptions}>
-                            <TouchableOpacity onPress={() => { setActiveStore(null); setStoreFilterOpen(false); }}>
-                                <Text>Todas</Text>
-                            </TouchableOpacity>
-                            {uniqueStores.map((store, i) => (
-                                <TouchableOpacity key={i} onPress={() => { setActiveStore(store); setStoreFilterOpen(false); }}>
-                                    <Text>{store}</Text>
-                                </TouchableOpacity>
-                            ))}
-                        </View>
-                    )}
-                </View>
-            )}
-
-            {!shoppingMode && (
-                <View>
-                    <View style={styles.headerRow}>
-                        <Text style={[styles.quantityCell, styles.headerText]}>Cant.</Text>
-                        <Text style={[styles.cell, styles.headerText]}>Nombre</Text>
-                        <Text style={[styles.cell, styles.headerText]}>Marca</Text>
-                        <TouchableOpacity style={[styles.cell, { flexDirection: 'row', alignItems: 'center' }]} onPress={sortByStore}>
-                            <Text style={styles.headerText}>Tienda</Text>
-                            {getStoreSortIcon() && <Ionicons name={getStoreSortIcon()} size={14} color="#ffffff" />}
+                {shoppingMode && (
+                    <View style={{ flexDirection: 'row', gap: 12, marginBottom: 12 }}>
+                        <TouchableOpacity style={styles.cancelShopButton} onPress={cancelShopping}>
+                            <Text>Cancelar</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.finishShopButton} onPress={() => { /** */ }}>
+                            <Text style={{ color: '#fff' }}>Terminar la compra</Text>
                         </TouchableOpacity>
                     </View>
-                    {tableItems.map(item => (
-                        <View key={item.key} style={styles.row}>
-                            <Text style={styles.quantityCell}>{item.quantity}</Text>
-                            <Text style={styles.cell}>{item.name}</Text>
-                            <Text style={styles.cell}>{item.brand}</Text>
-                            <Text style={styles.cell}>{item.store || '-'}</Text>
-                        </View>
-                    ))}
-                </View>
-            )}
+                )}
 
-            {shoppingMode && sections.map(section => (
-                <View key={section}>
-                    <Text style={styles.sectionTitle}>{section}</Text>
-                    <View style={styles.subHeaderRow}>
-                        <View style={styles.checkboxCell} />
-                        <Text style={[styles.quantityCell, styles.headerText]}>Cant.</Text>
-                        <Text style={[styles.cell, styles.headerText]}>Nombre</Text>
-                        <Text style={[styles.cell, styles.headerText]}>Marca (Tienda)</Text>
-                    </View>
-                    {allItemsByFilter
-                        .filter(item => item.filter === section)
-                        .filter(item => !activeStore || item.store === activeStore || item.type === 'food')
-                        .map(item => {
-                            const isChecked = checkedItems.includes(item.key);
-                            return (
-                                <TouchableOpacity key={item.key} style={styles.row} onPress={() => toggleChecked(item.key)}>
-                                    <View style={styles.checkboxCell}>
-                                        <Ionicons
-                                            name={isChecked ? "checkbox" : "square-outline"}
-                                            size={22}
-                                            color={isChecked ? "#4a5a6a" : "#999"}
-                                        />
-                                    </View>
-                                    <Text style={[styles.quantityCell, isChecked && styles.checkedText]}>{item.quantity}</Text>
-                                    <Text style={[styles.cell, isChecked && styles.checkedText]}>{item.name}</Text>
-                                    <Text style={[styles.cell, isChecked && styles.checkedText]}>
-                                        {item.brand}{item.store ? ` (${item.store})` : ''}
-                                    </Text>
+                {shoppingMode && uniqueStores.length > 0 && (
+                    <View style={styles.fieldGroup}>
+                        <TouchableOpacity onPress={() => setStoreFilterOpen(!storeFilterOpen)} style={styles.filterButton}>
+                            <Text>{activeStore ? activeStore : "Filtrar por tienda"}</Text>
+                            <Ionicons name={storeFilterOpen ? "chevron-up" : "chevron-down"} size={16} />
+                        </TouchableOpacity>
+                        {storeFilterOpen && (
+                            <View style={styles.filterOptions}>
+                                <TouchableOpacity onPress={() => { setActiveStore(null); setStoreFilterOpen(false); }}>
+                                    <Text>Todas</Text>
                                 </TouchableOpacity>
-                            );
-                        })}
-                </View>
-            ))}
-        </View>
+                                {uniqueStores.map((store, i) => (
+                                    <TouchableOpacity key={i} onPress={() => { setActiveStore(store); setStoreFilterOpen(false); }}>
+                                        <Text>{store}</Text>
+                                    </TouchableOpacity>
+                                ))}
+                            </View>
+                        )}
+                    </View>
+                )}
+
+                {!shoppingMode && (
+                    <View>
+                        <View style={styles.headerRow}>
+                            <Text style={[styles.quantityCell, styles.headerText]}>Cant.</Text>
+                            <Text style={[styles.cell, styles.headerText]}>Nombre</Text>
+                            <Text style={[styles.cell, styles.headerText]}>Marca</Text>
+                            <TouchableOpacity style={[styles.cell, { flexDirection: 'row', alignItems: 'center' }]} onPress={sortByStore}>
+                                <Text style={styles.headerText}>Tienda</Text>
+                                {getStoreSortIcon() && <Ionicons name={getStoreSortIcon()} size={14} color="#ffffff" />}
+                            </TouchableOpacity>
+                        </View>
+                        {tableItems.map(item => (
+                            <View key={item.key} style={styles.row}>
+                                <Text style={styles.quantityCell}>{item.quantity}</Text>
+                                <Text style={styles.cell}>{item.name}</Text>
+                                <Text style={styles.cell}>{item.brand}</Text>
+                                <Text style={styles.cell}>{item.store || '-'}</Text>
+                            </View>
+                        ))}
+                    </View>
+                )}
+
+                {shoppingMode && sections.map(section => (
+                    <View key={section}>
+                        <Text style={styles.sectionTitle}>{section}</Text>
+                        <View style={styles.subHeaderRow}>
+                            <View style={styles.checkboxCell} />
+                            <Text style={[styles.quantityCell, styles.headerText]}>Cant.</Text>
+                            <Text style={[styles.cell, styles.headerText]}>Nombre</Text>
+                            <Text style={[styles.cell, styles.headerText]}>Marca (Tienda)</Text>
+                        </View>
+                        {allItemsByFilter
+                            .filter(item => item.filter === section)
+                            .filter(item => !activeStore || item.store === activeStore || item.type === 'food')
+                            .map(item => {
+                                const isChecked = checkedItems.includes(item.key);
+                                return (
+                                    <TouchableOpacity key={item.key} style={styles.row} onPress={() => toggleChecked(item.key)}>
+                                        <View style={styles.checkboxCell}>
+                                            <Ionicons
+                                                name={isChecked ? "checkbox" : "square-outline"}
+                                                size={22}
+                                                color={isChecked ? "#4a5a6a" : "#999"}
+                                            />
+                                        </View>
+                                        <Text style={[styles.quantityCell, isChecked && styles.checkedText]}>{item.quantity}</Text>
+                                        <Text style={[styles.cell, isChecked && styles.checkedText]}>{item.name}</Text>
+                                        <Text style={[styles.cell, isChecked && styles.checkedText]}>
+                                            {item.brand}{item.store ? ` (${item.store})` : ''}
+                                        </Text>
+                                    </TouchableOpacity>
+                                );
+                            })}
+                    </View>
+                ))}
+            </View>
+        </ScrollView>
     );
 }

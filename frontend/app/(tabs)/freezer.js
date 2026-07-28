@@ -2,6 +2,7 @@ import { useState, useContext } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Modal } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import FoodContext from '../../context/FoodContext';
+import Toast from '../../components/Toast';
 
 const styles = StyleSheet.create({
     modalOverlay: {
@@ -85,6 +86,8 @@ export default function Freezer() {
     const [activeFilter, setActiveFilter] = useState(null);
     const [infoModalVisible, setInfoModalVisible] = useState(false); //se ve modal o no
     const [selectedFoodInfo, setSelectedFoodInfo] = useState(null); //qué alimento se ve
+    const [toastVisible, setToastVisible] = useState(false);
+    const [toastMessage, setToastMessage] = useState('');
 
     const { food, setFood, lots, setLots, decreaseServing, increaseServing, deleteFood, addToShoppingList } = useContext(FoodContext);
 
@@ -124,8 +127,15 @@ export default function Freezer() {
         return `${parts[2]}/${parts[1]}/${parts[0]}`;
     };
 
+    const showToast = (message) => {
+        setToastMessage(message);
+        setToastVisible(true);
+        setTimeout(() => setToastVisible(false), 2000);
+    };
+
     const uniqueFilters = [...new Set(food.map(f => f.Filter))]; //filter está en la ficha del prod, no en el lote
     const visibleLots = lots.filter(lot => !lot.Deleted && lot.Location == "freezer" && (!activeFilter || food.find(f => f.id === lot.FoodId)?.Filter === activeFilter));
+
     return (
         <View style={styles.container}>
             <TouchableOpacity onPress={() => setFilterOpen(!filterOpen)} style={styles.filterButton}>
@@ -191,8 +201,7 @@ export default function Freezer() {
                                             </TouchableOpacity>
                                         </View>
                                         <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 40 }}>
-                                            <TouchableOpacity onPress={() => addToShoppingList(foodItem.id)} style={{ flexDirection: 'row', alignItems: 'center', marginTop: 12 }}>
-                                                <Ionicons name="cart-outline" size={20} />
+                                            <TouchableOpacity onPress={() => { addToShoppingList(foodItem.id); showToast(`${foodItem.Food} añadido a la compra`); }} style={{ flexDirection: 'row', alignItems: 'center', marginTop: 12 }}>                                                <Ionicons name="cart-outline" size={20} />
                                                 <Text style={styles.expandedText}>Añadir a la compra</Text>
                                             </TouchableOpacity>
                                             <TouchableOpacity onPress={() => deleteFood(lot.id)} style={{ flexDirection: 'row', alignItems: 'center', marginTop: 12 }}>
@@ -232,6 +241,7 @@ export default function Freezer() {
                         </View>
                     </View>
                 </Modal>
+                <Toast message={toastMessage} visible={toastVisible} />
             </View>
         </View>
     );
