@@ -201,7 +201,8 @@ export default function Freezer() {
                                             </TouchableOpacity>
                                         </View>
                                         <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 40 }}>
-                                            <TouchableOpacity onPress={() => { addToShoppingList(foodItem.id); showToast(`${foodItem.Food} añadido a la compra`); }} style={{ flexDirection: 'row', alignItems: 'center', marginTop: 12 }}>                                                <Ionicons name="cart-outline" size={20} />
+                                            <TouchableOpacity onPress={() => { addToShoppingList(foodItem.id); showToast(`${foodItem.Food} añadido a la compra`); }} style={{ flexDirection: 'row', alignItems: 'center', marginTop: 12 }}>
+                                                <Ionicons name="cart-outline" size={20} />
                                                 <Text style={styles.expandedText}>Añadir a la compra</Text>
                                             </TouchableOpacity>
                                             <TouchableOpacity onPress={() => deleteFood(lot.id)} style={{ flexDirection: 'row', alignItems: 'center', marginTop: 12 }}>

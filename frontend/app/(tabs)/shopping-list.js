@@ -5,12 +5,15 @@ import FoodContext from '../../context/FoodContext';
 import HouseholdContext from '../../context/HouseholdContext';
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
+    fixedHeader: {
         paddingHorizontal: 16,
-        marginTop: 20
+        paddingTop: 20,
+        backgroundColor: '#f2f2f2'
     },
-    scrollview: {
+    container: {
+        paddingHorizontal: 16
+    },
+    scrollView: {
         flex: 1
     },
     sectionTitle: {
@@ -147,12 +150,10 @@ export default function ShoppingList() {
 
     const allItemsUnsorted = [...foodItems, ...householdItems];
 
-    // Paso 1: ordenamos siempre por filtro primero, para que las secciones queden agrupadas
     const allItemsByFilter = [...allItemsUnsorted].sort((a, b) => {
         return a.filter > b.filter ? 1 : -1;
     });
 
-    // Paso 2: sort de tienda para la vista tabla (modo normal)
     const sortByStore = () => {
         const newDirection = storeDirection === 'asc' ? 'desc' : 'asc';
         setStoreDirection(newDirection);
@@ -173,9 +174,7 @@ export default function ShoppingList() {
         });
     }
 
-    // Paso 3: lista de tiendas únicas, para el filtro del modo compra
     const uniqueStores = [...new Set(allItemsByFilter.map(item => item.store).filter(store => store))];
-
     const sections = [...new Set(allItemsByFilter.map(item => item.filter))];
 
     const toggleChecked = (key) => {
@@ -199,8 +198,10 @@ export default function ShoppingList() {
     };
 
     return (
-        <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={true}>
-            <View style={styles.container}>
+        <View style={{ flex: 1 }}>
+
+            {/* ZONA FIJA (fuera del ScrollView) */}
+            <View style={styles.fixedHeader}>
                 {!shoppingMode && (
                     <TouchableOpacity style={styles.shopButton} onPress={startShopping}>
                         <Ionicons name="cart-outline" size={20} color={"#fff"} />
@@ -239,7 +240,10 @@ export default function ShoppingList() {
                         )}
                     </View>
                 )}
+            </View>
 
+            {/* ZONA CON SCROLL */}
+            <ScrollView style={styles.scrollView} contentContainerStyle={styles.container} showsVerticalScrollIndicator={true}>
                 {!shoppingMode && (
                     <View>
                         <View style={styles.headerRow}>
@@ -295,7 +299,7 @@ export default function ShoppingList() {
                             })}
                     </View>
                 ))}
-            </View>
-        </ScrollView>
+            </ScrollView>
+        </View>
     );
 }
