@@ -1,13 +1,16 @@
 import { Stack } from "expo-router";
+import * as NavigationBar from 'expo-navigation-bar';
+import { useEffect } from "react";
 import { FoodProvider } from "../context/FoodContext";
 import { HouseholdProvider } from "../context/HouseholdContext";
-import { useEffect } from "react";
 import { initDatabase } from "../database/db";
 import { ReviewProvider } from "../context/ReviewContext";
 
 export default function RootLayout() {
     useEffect(() => {
         initDatabase();
+        NavigationBar.setBackgroundColorAsync('#ffffff');
+        NavigationBar.setButtonStyleAsync('dark');
     }, []);
 
 

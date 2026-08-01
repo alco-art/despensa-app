@@ -87,6 +87,7 @@ const styles = StyleSheet.create({
 export default function AddFood() {
     const [name, setName] = useState('');
     const [brand, setBrand] = useState('');
+    const [store, setStore] = useState('');
     const [filter, setFilter] = useState('');
     const [defaultLocation, setDefaultLocation] = useState('');
     const [weightPerUnit, setWeightPerUnit] = useState('');
@@ -99,10 +100,11 @@ export default function AddFood() {
         Carbs: '',
         Protein: '',
         Fat: '',
-        Fiber: ''
+        Fiber: '',
+        Salt: ''
     });
     const [locationOpen, setLocationOpen] = useState(false);
-    const locationOptions = ["fridge", "freezer", "pantry"];
+    const locationOptions = ["Fridge", "Freezer", "Pantry"];
     const insets = useSafeAreaInsets();
     const router = useRouter();
     const { food, addFood } = useContext(FoodContext);
@@ -124,6 +126,7 @@ export default function AddFood() {
     const loadExistingFood = (foodItem) => {
         setName(foodItem.Food);
         setBrand(foodItem.Brand || '');
+        setStore(foodItem.Store || '');
         setFilter(foodItem.Filter || '');
         setDefaultLocation(foodItem.DefaultLocation || '');
         setWeightPerUnit(foodItem.WeightPerUnit ? String(foodItem.WeightPerUnit) : '');
@@ -132,16 +135,17 @@ export default function AddFood() {
             Carbs: foodItem.NutritionalInfo ? String(foodItem.NutritionalInfo.Carbs) : '',
             Protein: foodItem.NutritionalInfo ? String(foodItem.NutritionalInfo.Protein) : '',
             Fat: foodItem.NutritionalInfo ? String(foodItem.NutritionalInfo.Fat) : '',
-            Fiber: foodItem.NutritionalInfo ? String(foodItem.NutritionalInfo.Fiber) : ''
+            Fiber: foodItem.NutritionalInfo ? String(foodItem.NutritionalInfo.Fiber) : '',
+            Salt: foodItem.NutritionalInfo ? String(foodItem.NutritionalInfo.Salt) : ''
         });
     };
 
     const handleSubmit = async () => {
-        if (!name || !brand || !defaultLocation || !weightPerUnit || !nutritionalInfo.Calories) {
+        if (!name || !brand || !store || !defaultLocation || !weightPerUnit || !nutritionalInfo.Calories) {
             Alert.alert('Faltan datos', 'Rellena nombre, marca, ubicación, peso y calorías.');
             return;
         }
-        await addFood({ name, brand, filter, defaultLocation, weightPerUnit, quantity, expDate, servingsPerUnit, nutritionalInfo});
+        await addFood({ name, brand, store, filter, defaultLocation, weightPerUnit, quantity, expDate, servingsPerUnit, nutritionalInfo });
         router.back();
     };
 
@@ -162,7 +166,7 @@ export default function AddFood() {
                             {existingFoodOpen && (
                                 <View style={styles.filterOptions}>
                                     {food.map((f) => (
-                                        <TouchableOpacity key={f.id} onPress={() => { loadExistingFood(f); setExistingFoodOpen(false);}}>
+                                        <TouchableOpacity key={f.id} onPress={() => { loadExistingFood(f); setExistingFoodOpen(false); }}>
                                             <Text>{f.Food} - {f.Brand}</Text>
                                         </TouchableOpacity>
                                     ))}
@@ -196,16 +200,28 @@ export default function AddFood() {
 
                         <View style={styles.fieldGroup}>
                             <Text style={styles.label}>
+                                Tienda *
+                            </Text>
+                            <TextInput
+                                value={store}
+                                onChangeText={setStore}
+                                placeholder="Ej: Mercadona"
+                                style={styles.input}
+                            />
+                        </View>
+
+                        <View style={styles.fieldGroup}>
+                            <Text style={styles.label}>
                                 Filtro *
                             </Text>
                             <TouchableOpacity onPress={() => setFilterFieldOpen(!filterFieldOpen)} style={styles.filterButton}>
                                 <Text>{filter ? filter : 'Selecciona categoría'}</Text>
-                                <Ionicons name={filterFieldOpen ? "chevron-up" : "chevron-down"} size={16}/>
+                                <Ionicons name={filterFieldOpen ? "chevron-up" : "chevron-down"} size={16} />
                             </TouchableOpacity>
                             {filterFieldOpen && (
                                 <View style={styles.filterOptions}>
                                     {filterOptions.map((f, i) => (
-                                        <TouchableOpacity key={i} onPress={() => { setFilter(f); setFilterFieldOpen(false)}}>
+                                        <TouchableOpacity key={i} onPress={() => { setFilter(f); setFilterFieldOpen(false) }}>
                                             <Text>{f}</Text>
                                         </TouchableOpacity>
                                     ))}
@@ -299,7 +315,7 @@ export default function AddFood() {
                                 Información nutricional
                             </Text>
                             <View style={styles.fieldGroup}>
-                                <Text style={styles.label}>Calorías (por 100g) *</Text>
+                                <Text style={styles.label}>Calorías (kcal por 100g) *</Text>
                                 <TextInput
                                     value={nutritionalInfo.Calories}
                                     onChangeText={(text) => setNutritionalInfo({ ...nutritionalInfo, Calories: text })}
@@ -310,7 +326,7 @@ export default function AddFood() {
                             </View>
 
                             <View style={styles.fieldGroup}>
-                                <Text style={styles.label}>Carbohidratos (por 100g)</Text>
+                                <Text style={styles.label}>Carbohidratos (g por 100g)</Text>
                                 <TextInput
                                     value={nutritionalInfo.Carbs}
                                     onChangeText={(text) => setNutritionalInfo({ ...nutritionalInfo, Carbs: text })}
@@ -321,7 +337,7 @@ export default function AddFood() {
                             </View>
 
                             <View style={styles.fieldGroup}>
-                                <Text style={styles.label}>Proteína (por 100g)</Text>
+                                <Text style={styles.label}>Proteína (g por 100g)</Text>
                                 <TextInput
                                     value={nutritionalInfo.Protein}
                                     onChangeText={(text) => setNutritionalInfo({ ...nutritionalInfo, Protein: text })}
@@ -332,7 +348,7 @@ export default function AddFood() {
                             </View>
 
                             <View style={styles.fieldGroup}>
-                                <Text style={styles.label}>Grasa (por 100g)</Text>
+                                <Text style={styles.label}>Grasa (g por 100g)</Text>
                                 <TextInput
                                     value={nutritionalInfo.Fat}
                                     onChangeText={(text) => setNutritionalInfo({ ...nutritionalInfo, Fat: text })}
@@ -343,7 +359,7 @@ export default function AddFood() {
                             </View>
 
                             <View style={styles.fieldGroup}>
-                                <Text style={styles.label}>Fibra (por 100g)</Text>
+                                <Text style={styles.label}>Fibra (g por 100g)</Text>
                                 <TextInput
                                     value={nutritionalInfo.Fiber}
                                     onChangeText={(text) => setNutritionalInfo({ ...nutritionalInfo, Fiber: text })}
@@ -351,6 +367,17 @@ export default function AddFood() {
                                     style={styles.input}
                                     keyboardType="numeric">
                                 </TextInput>
+                            </View>
+
+                            <View style={styles.fieldGroup}>
+                                <Text style={styles.label}>Sal (g por 100g)</Text>
+                                <TextInput
+                                    value={nutritionalInfo.Salt}
+                                    onChangeText={(text) => setNutritionalInfo({ ...nutritionalInfo, Salt: text })}
+                                    placeholder="Ej: 0.5"
+                                    style={styles.input}
+                                    keyboardType="numeric"
+                                />
                             </View>
                         </View>
                     </ScrollView>

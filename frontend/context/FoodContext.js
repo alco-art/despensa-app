@@ -19,6 +19,7 @@ export function FoodProvider({ children }) {
             id: f.id,
             Food: f.name,
             Brand: f.brand,
+            Store: f.store,
             Filter: f.filter,
             DefaultLocation: f.defaultLocation,
             weightPerUnit: f.weightPerUnit,
@@ -27,7 +28,8 @@ export function FoodProvider({ children }) {
                 Carbs: f.carbs,
                 Protein: f.protein,
                 Fat: f.fat,
-                Fiber: f.fiber
+                Fiber: f.fiber,
+                Salt: f.salt
             },
             InShoppingList: f.inShoppingList === 1
         }));
@@ -102,7 +104,7 @@ export function FoodProvider({ children }) {
     }
 
     const addFood = async (formData) => {
-        const { name, brand, filter, defaultLocation, weightPerUnit, quantity, expDate, servingsPerUnit, nutritionalInfo } = formData;
+        const { name, brand, store, filter, defaultLocation, weightPerUnit, quantity, expDate, servingsPerUnit, nutritionalInfo } = formData;
 
         //Comprobar si el alimento ya existe
         const existing = await db.getAllAsync(
@@ -117,9 +119,9 @@ export function FoodProvider({ children }) {
         }
         else {
             const result = await db.runAsync(
-                `INSERT INTO Food (name, brand, filter, defaultLocation, weightPerUnit, calories, carbs, protein, fat, fiber)
+                `INSERT INTO Food (name, brand, store, filter, defaultLocation, weightPerUnit, calories, carbs, protein, fat, fiber, salt)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-                [name, brand, filter || "Sin categoría", defaultLocation, Number(weightPerUnit), Number(nutritionalInfo.Calories), Number(nutritionalInfo.Carbs), Number(nutritionalInfo.Protein), Number(nutritionalInfo.Fat), Number(nutritionalInfo.Fiber)]
+                [name, brand, filter || "Sin categoría", defaultLocation, Number(weightPerUnit), Number(nutritionalInfo.Calories), Number(nutritionalInfo.Carbs), Number(nutritionalInfo.Protein), Number(nutritionalInfo.Fat), Number(nutritionalInfo.Fiber), Number(nutritionalInfo.Salt)]
             );
 
             foodId = result.lastInsertRowId;

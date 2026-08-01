@@ -1,8 +1,10 @@
 import { useState, useContext } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter  } from 'expo-router';
 import FoodContext from '../../context/FoodContext';
 import HouseholdContext from '../../context/HouseholdContext';
+import ReviewContext from '../../context/ReviewContext';
 
 const styles = StyleSheet.create({
     fixedHeader: {
@@ -130,7 +132,7 @@ export default function ShoppingList() {
             brand: f.Brand,
             filter: f.Filter,
             quantity: 1,
-            store: null
+            store: f.Store
         };
     });
 
@@ -174,6 +176,9 @@ export default function ShoppingList() {
         });
     }
 
+    const { setReviewItems } = useContext(ReviewContext);
+    const router = useRouter();
+
     const uniqueStores = [...new Set(allItemsByFilter.map(item => item.store).filter(store => store))];
     const sections = [...new Set(allItemsByFilter.map(item => item.filter))];
 
@@ -197,6 +202,14 @@ export default function ShoppingList() {
         setActiveStore(null);
     };
 
+    const finishShopping = () => {
+        const selectedItems = allItemsByFilter.filter(item => checkedItems.includes(item.key));
+        setReviewItems(selectedItems);
+        setShoppingMode(false);
+        setCheckedItems([]);
+        router.push('../review-purchase');
+    };
+
     return (
         <View style={{ flex: 1 }}>
 
@@ -214,7 +227,7 @@ export default function ShoppingList() {
                         <TouchableOpacity style={styles.cancelShopButton} onPress={cancelShopping}>
                             <Text>Cancelar</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.finishShopButton} onPress={() => { /** */ }}>
+                        <TouchableOpacity style={styles.finishShopButton} onPress={finishShopping}>
                             <Text style={{ color: '#fff' }}>Terminar la compra</Text>
                         </TouchableOpacity>
                     </View>
@@ -277,7 +290,7 @@ export default function ShoppingList() {
                         </View>
                         {allItemsByFilter
                             .filter(item => item.filter === section)
-                            .filter(item => !activeStore || item.store === activeStore || item.type === 'food')
+                            .filter(item => !activeStore || item.store === activeStore)
                             .map(item => {
                                 const isChecked = checkedItems.includes(item.key);
                                 return (

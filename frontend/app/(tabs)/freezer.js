@@ -134,7 +134,7 @@ export default function Freezer() {
     };
 
     const uniqueFilters = [...new Set(food.map(f => f.Filter))]; //filter está en la ficha del prod, no en el lote
-    const visibleLots = lots.filter(lot => !lot.Deleted && lot.Location == "freezer" && (!activeFilter || food.find(f => f.id === lot.FoodId)?.Filter === activeFilter));
+    const visibleLots = lots.filter(lot => !lot.Deleted && lot.Location == "Freezer" && (!activeFilter || food.find(f => f.id === lot.FoodId)?.Filter === activeFilter));
 
     return (
         <View style={styles.container}>
@@ -223,15 +223,17 @@ export default function Freezer() {
                             {selectedFoodInfo && (
                                 <>
                                     <Text style={styles.modalTitle}>{selectedFoodInfo.Food} - {selectedFoodInfo.Brand}</Text>
+                                    <Text>Tienda: {selectedFoodInfo.Store}</Text>
                                     <Text>Filtro: {selectedFoodInfo.Filter}</Text>
                                     <Text>Ubicación por defecto: {selectedFoodInfo.DefaultLocation}</Text>
                                     {selectedFoodInfo.NutritionalInfo && (
                                         <>
-                                            <Text>Calorías: {selectedFoodInfo.NutritionalInfo.Calories} / 100g</Text>
-                                            <Text>Carbohidratos: {selectedFoodInfo.NutritionalInfo.Carbs}g</Text>
-                                            <Text>Proteína: {selectedFoodInfo.NutritionalInfo.Protein}g</Text>
+                                            <Text>Calorías: {selectedFoodInfo.NutritionalInfo.Calories} kcal / 100g</Text>
                                             <Text>Grasa: {selectedFoodInfo.NutritionalInfo.Fat}g</Text>
+                                            <Text>Carbohidratos: {selectedFoodInfo.NutritionalInfo.Carbs}g</Text>
                                             <Text>Fibra: {selectedFoodInfo.NutritionalInfo.Fiber}g</Text>
+                                            <Text>Proteína: {selectedFoodInfo.NutritionalInfo.Protein}g</Text>
+                                            <Text>Sal: {selectedFoodInfo.NutritionalInfo.Salt}g</Text>
                                         </>
                                     )}
                                     <TouchableOpacity onPress={() => setInfoModalVisible(false)} style={styles.modalCloseButton}>

@@ -8,6 +8,7 @@ export const initDatabase = () => {
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
             brand TEXT,
+            store TEXT NOT NULL,
             filter TEXT,
             defaultLocation TEXT,
             weightPerUnit REAL,
@@ -16,6 +17,7 @@ export const initDatabase = () => {
             protein REAL,
             fat REAL,
             fiber REAL,
+            salt REAL,
             inShoppingList INTEGER DEFAULT 0
         );
     `);
