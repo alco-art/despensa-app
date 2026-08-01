@@ -8,12 +8,12 @@ import ReviewContext from '../../context/ReviewContext';
 
 const styles = StyleSheet.create({
     fixedHeader: {
-        paddingHorizontal: 16,
+        paddingHorizontal: 4,
         paddingTop: 20,
         backgroundColor: '#f2f2f2'
     },
     container: {
-        paddingHorizontal: 16
+        paddingHorizontal: 4
     },
     scrollView: {
         flex: 1
@@ -70,17 +70,21 @@ const styles = StyleSheet.create({
     },
     headerRow: {
         flexDirection: 'row',
+        alignItems: 'center',
         backgroundColor: '#4a5a6a'
     },
     subHeaderRow: {
         flexDirection: 'row',
+        alignItems: 'center',
         backgroundColor: '#6c7d8c'
     },
     cell: {
         flex: 1,
-        padding: 8
+        padding: 7,
+        flexWrap: 'wrap'
     },
     headerText: {
+        textAlign: 'center',
         color: '#ffffff',
         fontWeight: 'bold'
     },

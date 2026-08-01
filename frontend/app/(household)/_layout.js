@@ -7,15 +7,15 @@ export default function HouseholdLayout() {
     return (
         <Tabs>
             <Tabs.Screen name="index" options={{
-                title: 'Household',
+                title: 'Lista artículos',
                 tabBarIcon: ({ color, size }) => <Ionicons name="home" size={size} color={color} />
             }} />
             <Tabs.Screen name="add-item" options={{
-                title: 'Add Item',
+                title: 'Añadir artículo',
                 tabBarIcon: ({ color, size }) => <Ionicons name="add-circle-outline" size={size} color={color} />
             }} />
             <Tabs.Screen name="back-placeholder" options={{
-                title: 'Back',
+                title: 'Atrás',
                 tabBarIcon: ({ color, size }) => <Ionicons name="arrow-back-outline" size={size} color={color} />
             }}
                 listeners={{

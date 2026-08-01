@@ -32,7 +32,7 @@ const styles = StyleSheet.create({
     },
     container: {
         flex: 1,
-        paddingHorizontal: 16,
+        paddingHorizontal: 4,
         marginTop: 20
     },
     filterButton: {
@@ -52,10 +52,12 @@ const styles = StyleSheet.create({
         gap: 8
     },
     row: {
-        flexDirection: 'row'
+        flexDirection: 'row',
+        alignItems: 'center'
     },
     headerRow: {
         flexDirection: 'row',
+        alignItems: 'center',
         backgroundColor: '#4a5a6a'
     },
     expandedRow: {
@@ -64,9 +66,12 @@ const styles = StyleSheet.create({
     },
     cell: {
         flex: 1,
-        padding: 8
+        padding: 7,
+        flexWrap: 'wrap',
+        textAlign: 'center'
     },
     headerText: {
+        textAlign: 'center',
         color: '#ffffff',
         fontWeight: 'bold'
     },
@@ -92,7 +97,6 @@ export default function Fridge() {
     const { food, setFood, lots, setLots, decreaseServing, increaseServing, deleteFood, addToShoppingList } = useContext(FoodContext);
 
     const sortTable = (column) => {
-        console.log('Tocado:', column);
         let newDirection = 'asc';
         if (sortColumn === column && direction === 'asc') {
             newDirection = 'desc'
@@ -133,6 +137,12 @@ export default function Fridge() {
         setTimeout(() => setToastVisible(false), 2000);
     };
 
+    const locationLabels = {
+        Fridge: "Nevera",
+        Freezer: "Congelador",
+        Pantry: "Despensa"    
+    };
+
     const uniqueFilters = [...new Set(food.map(f => f.Filter))]; //filter está en la ficha del prod, no en el lote
     const visibleLots = lots.filter(lot => !lot.Deleted && lot.Location == "Fridge" && (!activeFilter || food.find(f => f.id === lot.FoodId)?.Filter === activeFilter));
 
@@ -158,16 +168,16 @@ export default function Fridge() {
 
             <View>
                 <View style={styles.headerRow}>
-                    <Text style={[styles.cell, styles.headerText]}>Food</Text>
-                    <TouchableOpacity style={[styles.cell, { flexDirection: 'row', alignItems: 'center' }]} onPress={() => sortTable('Percentage')}>
-                        <Text style={styles.headerText}>Srvs left</Text>
+                    <Text style={[styles.cell, {flex: 1}, styles.headerText]}>Nombre</Text>
+                    <TouchableOpacity style={[styles.cell, { flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }]} onPress={() => sortTable('Percentage')}>
+                        <Text style={styles.headerText}>Porciones restantes</Text>
                         {getSortIcon('Percentage') && <Ionicons name={getSortIcon('Percentage')} size={14} color="#ffffff" />}
                     </TouchableOpacity>
-                    <TouchableOpacity style={[styles.cell, { flexDirection: 'row', alignItems: 'center', flex: 1.3 }]} onPress={() => sortTable('ExpDate')}>
-                        <Text style={styles.headerText}>Exp date</Text>
+                    <TouchableOpacity style={[styles.cell, { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', flex: 1.2 }]} onPress={() => sortTable('ExpDate')}>
+                        <Text style={styles.headerText}>Fecha caducidad</Text>
                         {getSortIcon('ExpDate') && <Ionicons name={getSortIcon('ExpDate')} size={14} color="#ffffff" />}
                     </TouchableOpacity>
-                    <Text style={[styles.cell, styles.headerText]}>Filter</Text>
+                    <Text style={[styles.cell, styles.headerText, {flex: 1.1}]}>Filtro</Text>
                 </View>
 
                 {visibleLots.map((lot, index) => {
@@ -178,10 +188,10 @@ export default function Fridge() {
                         (
                             <TouchableOpacity key={index} onPress={() => toggleExpand(lot.id)}>
                                 <View style={[styles.row, { backgroundColor: index % 2 === 0 ? '#ffffff' : '#f0f4f7' }]}>
-                                    <Text style={styles.cell}>{foodItem.Food}</Text>
-                                    <Text style={styles.cell}>{lot.Servings}</Text>
-                                    <Text style={[styles.cell, { flex: 1.3 }]}>{formatDate(lot.ExpDate)}</Text>
-                                    <Text style={styles.cell}>{foodItem.Filter}</Text>
+                                    <Text style={[styles.cell]}>{foodItem.Food}</Text>
+                                    <Text style={[styles.cell]}>{lot.Servings}</Text>
+                                    <Text style={[styles.cell, { flex: 1.2 }]}>{formatDate(lot.ExpDate)}</Text>
+                                    <Text style={[styles.cell, {flex: 1.1} ]}>{foodItem.Filter}</Text>
                                 </View>
                                 {expandedIndex === lot.id && (
                                     <View style={styles.expandedRow}>
@@ -192,11 +202,11 @@ export default function Fridge() {
                                             </TouchableOpacity>
                                             <TouchableOpacity onPress={() => decreaseServing(lot.id)} style={{ flexDirection: 'row', alignItems: 'center' }}>
                                                 <Ionicons name="remove-circle-outline" size={20} />
-                                                <Text style={styles.expandedText}>Restar serving</Text>
+                                                <Text style={styles.expandedText}>Restar porción</Text>
                                             </TouchableOpacity>
                                             <TouchableOpacity onPress={() => increaseServing(lot.id)} style={{ flexDirection: 'row', alignItems: 'center' }}>
                                                 <Ionicons name="add-circle-outline" size={20} />
-                                                <Text style={styles.expandedText}>Añadir serving</Text>
+                                                <Text style={styles.expandedText}>Añadir porción</Text>
                                             </TouchableOpacity>
                                         </View>
                                         <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 40 }}>
@@ -224,15 +234,15 @@ export default function Fridge() {
                                     <Text style={styles.modalTitle}>{selectedFoodInfo.Food} - {selectedFoodInfo.Brand}</Text>
                                     <Text>Tienda: {selectedFoodInfo.Store}</Text>
                                     <Text>Filtro: {selectedFoodInfo.Filter}</Text>
-                                    <Text>Ubicación por defecto: {selectedFoodInfo.DefaultLocation}</Text>
+                                    <Text>Ubicación por defecto: {locationLabels[selectedFoodInfo.DefaultLocation]}</Text>
                                     {selectedFoodInfo.NutritionalInfo && (
                                         <>
                                             <Text>Calorías: {selectedFoodInfo.NutritionalInfo.Calories} kcal / 100g</Text>
-                                            <Text>Grasa: {selectedFoodInfo.NutritionalInfo.Fat}g</Text>
-                                            <Text>Carbohidratos: {selectedFoodInfo.NutritionalInfo.Carbs}g</Text>
-                                            <Text>Fibra: {selectedFoodInfo.NutritionalInfo.Fiber}g</Text>
-                                            <Text>Proteína: {selectedFoodInfo.NutritionalInfo.Protein}g</Text>
-                                            <Text>Sal: {selectedFoodInfo.NutritionalInfo.Salt}g</Text>
+                                            <Text>Grasa: {selectedFoodInfo.NutritionalInfo.Fat} g</Text>
+                                            <Text>Carbohidratos: {selectedFoodInfo.NutritionalInfo.Carbs} g</Text>
+                                            <Text>Fibra: {selectedFoodInfo.NutritionalInfo.Fiber} g</Text>
+                                            <Text>Proteína: {selectedFoodInfo.NutritionalInfo.Protein} g</Text>
+                                            <Text>Sal: {selectedFoodInfo.NutritionalInfo.Salt} g</Text>
                                         </>
                                     )}
                                     <TouchableOpacity onPress={() => setInfoModalVisible(false)} style={styles.modalCloseButton}>

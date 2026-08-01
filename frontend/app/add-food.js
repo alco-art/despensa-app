@@ -111,7 +111,12 @@ export default function AddFood() {
     const [keyboardVisible, setKeyboardVisible] = useState(false);
     const [existingFoodOpen, setExistingFoodOpen] = useState(false);
     const [filterFieldOpen, setFilterFieldOpen] = useState(false);
-    const filterOptions = ["Carne", "Pescado", "Lácteos", "Fruta y verdura", "Congelados", "Panadería", "Conservas", "Pasta y arroz", "Bebidas", "Snacks", "Otros"];
+    const filterOptions = ["Carne", "Pescado", "Lácteo", "Fruta y verdura", "Congelado", "Panadería", "Conserva", "Pasta y arroz", "Bebida", "Snacks", "Otros"];
+    const locationLabels = {
+        Fridge: "Nevera",
+        Freezer: "Congelador",
+        Pantry: "Despensa"    
+    }
 
     useEffect(() => {
         const showSub = Keyboard.addListener('keyboardDidShow', () => setKeyboardVisible(true));
@@ -152,7 +157,7 @@ export default function AddFood() {
 
     return (
         <>
-            <Stack.Screen options={{ title: 'Add Food Item', headerShown: true }} />
+            <Stack.Screen options={{ title: 'Añadir alimento', headerShown: true }} />
             <SafeAreaView style={{ flex: 1 }} edges={['bottom']}>
                 <KeyboardAvoidingView style={{ flex: 1 }}
                     behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
@@ -234,14 +239,14 @@ export default function AddFood() {
                                 Ubicación por defecto *
                             </Text>
                             <TouchableOpacity onPress={() => setLocationOpen(!locationOpen)} style={styles.filterButton}>
-                                <Text>{defaultLocation ? defaultLocation : 'Selecciona ubicación'}</Text>
+                                <Text>{defaultLocation ? locationLabels[defaultLocation] : 'Selecciona ubicación'}</Text>
                                 <Ionicons name={locationOpen ? "chevron-up" : "chevron-down"} size={16} />
                             </TouchableOpacity>
                             {locationOpen && (
                                 <View style={styles.filterOptions}>
                                     {locationOptions.map((loc, i) => (
                                         <TouchableOpacity key={i} onPress={() => { setDefaultLocation(loc); setLocationOpen(false); }}>
-                                            <Text>{loc}</Text>
+                                            <Text>{locationLabels[loc]}</Text>
                                         </TouchableOpacity>
                                     ))}
                                 </View>
@@ -386,10 +391,10 @@ export default function AddFood() {
                 <View style={styles.buttonBar}>
                     {/* style={[styles.buttonBar, { paddingBottom: insets.bottom > 0 ? insets.bottom * 0.4 : 8 }]} */}
                     <TouchableOpacity style={styles.cancelButton} onPress={() => router.back()}>
-                        <Text>Cancel</Text>
+                        <Text>Cancelar</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
-                        <Text style={{ color: '#fff' }}>Submit</Text>
+                        <Text style={{ color: '#fff' }}>Guardar</Text>
                     </TouchableOpacity>
                 </View>
             </SafeAreaView>

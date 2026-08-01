@@ -50,7 +50,7 @@ export default function More() {
                 <View style={styles.cardIcon}>
                     <Ionicons name="home-outline" size={32} color="#4a5a6a" />
                 </View>
-                <Text style={styles.cardText}>Household</Text>
+                <Text style={styles.cardText}>Artículos</Text>
             </TouchableOpacity>
         </View>
     );

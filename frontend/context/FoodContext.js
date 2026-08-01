@@ -120,8 +120,8 @@ export function FoodProvider({ children }) {
         else {
             const result = await db.runAsync(
                 `INSERT INTO Food (name, brand, store, filter, defaultLocation, weightPerUnit, calories, carbs, protein, fat, fiber, salt)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-                [name, brand, filter || "Sin categoría", defaultLocation, Number(weightPerUnit), Number(nutritionalInfo.Calories), Number(nutritionalInfo.Carbs), Number(nutritionalInfo.Protein), Number(nutritionalInfo.Fat), Number(nutritionalInfo.Fiber), Number(nutritionalInfo.Salt)]
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?)`,
+                [name, brand, store, filter || "Sin categoría", defaultLocation, Number(weightPerUnit), Number(nutritionalInfo.Calories), Number(nutritionalInfo.Carbs), Number(nutritionalInfo.Protein), Number(nutritionalInfo.Fat), Number(nutritionalInfo.Fiber), Number(nutritionalInfo.Salt)]
             );
 
             foodId = result.lastInsertRowId;
