@@ -54,33 +54,39 @@ export function HouseholdProvider({ children }) {
 
         if (newQuantity === 0) {
             await db.runAsync('UPDATE Item SET inShoppingList = 1 WHERE id = ?', [itemId]);
-        }
+        };
 
         await loadItems();
-    }
+    };
 
     const increaseQuantity = async (itemId) => {
         await db.runAsync('UPDATE Item SET quantity = quantity + 1 WHERE id = ?', [itemId]);
         await loadItems();
-    }
+    };
 
     const deleteItem = async (itemId) => {
         await db.runAsync('UPDATE Item SET deleted = 1 WHERE id = ?', [itemId]);
         await loadItems();
-    }
+    };
 
     const addItemToShoppingList = async (itemId) => {
         await db.runAsync('UPDATE Item SET inShoppingList = 1 WHERE id = ?', [itemId]);
         await loadItems();
-    }
+    };
 
     const removeItemFromShoppingList = async (itemId) => {
         await db.runAsync('UPDATE Item SET inShoppingList = 0 WHERE id = ?', [itemId]);
         await loadItems();
+    };
+
+    const confirmPurchaseItem = async (itemId, quantity) => {
+        const addQty = Number(quantity) || 1;
+        await db.runAsync('UPDATE Item SET quantity = quantity + ?, inShoppingList = 0 WHERE id = ?', [addQty, itemId]);
+        await loadItems();
     }
 
     return (
-        <HouseholdContext.Provider value={{ items, loadItems, addItem, descreaseQuantity, increaseQuantity, deleteItem, addItemToShoppingList, removeItemFromShoppingList }}>
+        <HouseholdContext.Provider value={{ items, loadItems, addItem, descreaseQuantity, increaseQuantity, deleteItem, addItemToShoppingList, removeItemFromShoppingList, confirmPurchaseItem }}>
             {children}
         </HouseholdContext.Provider>
     );

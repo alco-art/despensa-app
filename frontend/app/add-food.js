@@ -115,7 +115,7 @@ export default function AddFood() {
     const locationLabels = {
         Fridge: "Nevera",
         Freezer: "Congelador",
-        Pantry: "Despensa"    
+        Pantry: "Despensa"
     }
 
     useEffect(() => {
@@ -151,7 +151,9 @@ export default function AddFood() {
             return;
         }
         await addFood({ name, brand, store, filter, defaultLocation, weightPerUnit, quantity, expDate, servingsPerUnit, nutritionalInfo });
-        router.back();
+        setName(''); setBrand(''); setStore(''); setFilter(''); setDefaultLocation(''); setWeightPerUnit(''); setQuantity(''); setExpDate(new Date()); setServingsPerUnit('');
+        setNutritionalInfo({ Calories: '', Carbs: '', Protein: '', Fat: '', Fiber: '', Salt: '' });
+        Alert.alert('Guardado', 'Alimento añadido correctamente.');
     };
 
 
@@ -255,12 +257,12 @@ export default function AddFood() {
 
                         <View style={styles.fieldGroup}>
                             <Text style={styles.label}>
-                                Peso por unidad en g * {/*Sirve para calcular la nutriInfo */}
+                                Peso en g/ml * {/*Sirve para calcular la nutriInfo */}
                             </Text>
                             <TextInput
                                 value={weightPerUnit}
                                 onChangeText={setWeightPerUnit}
-                                placeholder="Ej: 250 (en g/l)"
+                                placeholder="Ej: 250"
                                 style={styles.input}
                                 keyboardType="numeric">
                             </TextInput>
@@ -268,12 +270,12 @@ export default function AddFood() {
 
                         <View style={styles.fieldGroup}>
                             <Text style={styles.label}>
-                                Cantidad de unidades
+                                Cantidad en bandejas/packs
                             </Text>
                             <TextInput
                                 value={quantity}
                                 onChangeText={setQuantity}
-                                placeholder="Ej: 4"
+                                placeholder="Ej: 2"
                                 style={styles.input}
                                 keyboardType="numeric">
                             </TextInput>
@@ -304,12 +306,12 @@ export default function AddFood() {
 
                         <View style={styles.fieldGroup}>
                             <Text style={styles.label}>
-                                Servings por unidad
+                                Porciones por unidad
                             </Text>
                             <TextInput
                                 value={servingsPerUnit}
                                 onChangeText={setServingsPerUnit}
-                                placeholder="Ej: 4 (en cuánto divido una bandeja de carne)"
+                                placeholder="Ej: 4"
                                 style={styles.input}
                                 keyboardType="numeric">
                             </TextInput>

@@ -1,11 +1,12 @@
 import { useContext, useState, useEffect } from "react";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { View, StyleSheet, Text, ScrollView, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform } from "react-native";
-import { Stack } from "expo-router";
+import { Stack, useRouter } from "expo-router";
 import { Ionicons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import ReviewContext from "../context/ReviewContext";
 import FoodContext from "../context/FoodContext";
+import HouseholdContext from "../context/HouseholdContext";
 
 const styles = StyleSheet.create({
     container: {
@@ -78,12 +79,14 @@ const styles = StyleSheet.create({
 
 export default function ReviewPurchase() {
     //useState, useEffect, funciones, etc
-    const { reviewItems } = useContext(ReviewContext);
-    const { food } = useContext(FoodContext);
+    const { reviewItems, setReviewItems } = useContext(ReviewContext);
+    const { food, addLotsToExistingFood } = useContext(FoodContext);
+    const { confirmPurchaseItem } = useContext(HouseholdContext);
     const [editData, setEditData] = useState({});
     const [locationOpenKey, setLocationOpenKey] = useState(null);
     const [datePickerKey, setDatePickerKey] = useState(null);
     const insets = useSafeAreaInsets();
+    const router = useRouter();
 
     useEffect(() => {
         const initialData = {};
@@ -125,8 +128,20 @@ export default function ReviewPurchase() {
         updateField(key, 'quantity', String(current - 1));
     };
 
-    const handleConfirmPurchase = () => {
-        console.log('Confirmar compra - pendiente de implementar');
+    const handleConfirmPurchase = async () => {
+        for (const item of reviewItems) {
+            const data = editData[item.key];
+            if (!data) continue;
+
+            if (item.type === 'food') {
+                await addLotsToExistingFood(item.id, data.location, data.expDate, data.quantity);
+            } else if (item.type === 'item') {
+                await confirmPurchaseItem(item.id, data.quantity);
+            };
+        };
+
+        setReviewItems([]);
+        router.back();
     };
 
     return (

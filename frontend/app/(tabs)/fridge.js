@@ -78,6 +78,29 @@ const styles = StyleSheet.create({
     },
     expandedText: {
         fontSize: 12
+    },
+    quantitySelector: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        borderWidth: 1,
+        borderColor: '#ccc',
+        borderRadius: 6,
+        backgroundColor: '#fff',
+        paddingVertical: 6,
+        paddingHorizontal: 12
+    },
+    quantityValue: {
+        fontSize: 15,
+        fontWeight: '600'
+    },
+    cancelModalButton: {
+        padding: 10,
+        borderRadius: 6,
+        alignItems: 'center',
+        marginTop: 8,
+        borderWidth: 1,
+        borderColor: '#999'
     }
 });
 
@@ -92,11 +115,15 @@ export default function Fridge() {
     const [activeFilter, setActiveFilter] = useState(null);
     const [infoModalVisible, setInfoModalVisible] = useState(false); //se ve modal o no
     const [selectedFoodInfo, setSelectedFoodInfo] = useState(null); //qué alimento se ve
+    const [moveModalVisible, setMoveModalVisible] = useState(false);
+    const [selectedLotToMove, setSelectedLotToMove] = useState(null);
+    const [moveQuantity, setMoveQuantity] = useState('1');
+    const [moveDestination, setMoveDestination] = useState('');
     const [toastVisible, setToastVisible] = useState(false);
     const [toastMessage, setToastMessage] = useState('');
-    const { food, setFood, lots, setLots, decreaseServing, increaseServing, deleteFood, addToShoppingList } = useContext(FoodContext);
+    const { food, setFood, lots, setLots, decreaseServing, increaseServing, deleteFood, moveLot, addToShoppingList } = useContext(FoodContext);
 
-    useFocusEffect (
+    useFocusEffect(
         useCallback(() => {
             setExpandedIndex(null);
         }, [])
@@ -146,7 +173,7 @@ export default function Fridge() {
     const locationLabels = {
         Fridge: "Nevera",
         Freezer: "Congelador",
-        Pantry: "Despensa"    
+        Pantry: "Despensa"
     };
 
     const uniqueFilters = [...new Set(food.map(f => f.Filter))]; //filter está en la ficha del prod, no en el lote
@@ -174,7 +201,7 @@ export default function Fridge() {
 
             <View>
                 <View style={styles.headerRow}>
-                    <Text style={[styles.cell, {flex: 1}, styles.headerText]}>Nombre</Text>
+                    <Text style={[styles.cell, { flex: 1 }, styles.headerText]}>Nombre</Text>
                     <TouchableOpacity style={[styles.cell, { flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }]} onPress={() => sortTable('Percentage')}>
                         <Text style={styles.headerText}>Porciones restantes</Text>
                         {getSortIcon('Percentage') && <Ionicons name={getSortIcon('Percentage')} size={14} color="#ffffff" />}
@@ -183,7 +210,7 @@ export default function Fridge() {
                         <Text style={styles.headerText}>Fecha caducidad</Text>
                         {getSortIcon('ExpDate') && <Ionicons name={getSortIcon('ExpDate')} size={14} color="#ffffff" />}
                     </TouchableOpacity>
-                    <Text style={[styles.cell, styles.headerText, {flex: 1.1}]}>Filtro</Text>
+                    <Text style={[styles.cell, styles.headerText, { flex: 1.1 }]}>Filtro</Text>
                 </View>
 
                 {visibleLots.map((lot, index) => {
@@ -197,7 +224,7 @@ export default function Fridge() {
                                     <Text style={[styles.cell]}>{foodItem.Food}</Text>
                                     <Text style={[styles.cell]}>{lot.Servings}</Text>
                                     <Text style={[styles.cell, { flex: 1.2 }]}>{formatDate(lot.ExpDate)}</Text>
-                                    <Text style={[styles.cell, {flex: 1.1} ]}>{foodItem.Filter}</Text>
+                                    <Text style={[styles.cell, { flex: 1.1 }]}>{foodItem.Filter}</Text>
                                 </View>
                                 {expandedIndex === lot.id && (
                                     <View style={styles.expandedRow}>
@@ -215,7 +242,16 @@ export default function Fridge() {
                                                 <Text style={styles.expandedText}>Añadir porción</Text>
                                             </TouchableOpacity>
                                         </View>
-                                        <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 40 }}>
+                                        <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 30 }}>
+                                            <TouchableOpacity onPress={() => {
+                                                setSelectedLotToMove(lot);
+                                                setMoveQuantity('1');
+                                                setMoveDestination('');
+                                                setMoveModalVisible(true);
+                                            }} style={{ flexDirection: 'row', alignItems: 'center', marginTop: 12 }}>
+                                                <Ionicons name="swap-horizontal-outline" size={20} />
+                                                <Text style={styles.expandedText}>Mover</Text>
+                                            </TouchableOpacity>
                                             <TouchableOpacity onPress={() => {
                                                 if (foodItem.InShoppingList) {
                                                     showToast(`${foodItem.Food} ya está en la lista de la compra.`);
@@ -223,13 +259,13 @@ export default function Fridge() {
                                                     addToShoppingList(foodItem.id);
                                                     showToast(`${foodItem.Food} añadido a la compra.`);
                                                 }
-                                                }} style={{ flexDirection: 'row', alignItems: 'center', marginTop: 12 }}>
+                                            }} style={{ flexDirection: 'row', alignItems: 'center', marginTop: 12 }}>
                                                 <Ionicons name="cart-outline" size={20} />
                                                 <Text style={styles.expandedText}>Añadir a la compra</Text>
                                             </TouchableOpacity>
                                             <TouchableOpacity onPress={() => deleteFood(lot.id)} style={{ flexDirection: 'row', alignItems: 'center', marginTop: 12 }}>
                                                 <Ionicons name="trash-outline" size={20} />
-                                                <Text style={styles.expandedText}>Eliminar alimento</Text>
+                                                <Text style={styles.expandedText}>Eliminar</Text>
                                             </TouchableOpacity>
                                         </View>
                                     </View>
@@ -265,6 +301,52 @@ export default function Fridge() {
                             )}
                         </View>
                     </View>
+                </Modal>
+
+                <Modal visible={moveModalVisible} transparent={true} animationType='fade'>
+                    <View style={styles.modalOverlay}>
+                        <View style={styles.modalContent}>
+                            {selectedLotToMove && (
+                                <>
+                                    <Text style={styles.modalTitle}>Mover porciones</Text>
+                                    <Text>Disponibles: {selectedLotToMove.Servings} porciones</Text>
+
+                                    <Text style={styles.label}>Cantidad a mover:</Text>
+                                    <View style={styles.quantitySelector}>
+                                        <TouchableOpacity onPress={() => setMoveQuantity(String(Math.max(1, Number(moveQuantity) - 1)))}>
+                                            <Ionicons name={"remove-circle-outline"} size={22} color="#4a5a6a" />
+                                        </TouchableOpacity>
+                                        <Text style={styles.quantityValue}>{moveQuantity}</Text>
+                                        <TouchableOpacity onPress={() => setMoveQuantity(String(Math.min(selectedLotToMove.Servings, Number(moveQuantity) + 1)))}>
+                                            <Ionicons name={"add-circle-outline"} size={22} color="#4a5a6a" />
+                                        </TouchableOpacity>
+                                    </View>
+
+                                    <Text style={styles.label}>Destino:</Text>
+                                    {['Fridge', 'Freezer', 'Pantry'].filter(loc => loc !== selectedLotToMove.Location).map(loc => (
+                                        <TouchableOpacity key={loc} onPress={() => setMoveDestination(loc)} style={[styles.filterButton, moveDestination === loc && { backgroundColor: '#4a5a6a' }]}>
+                                            <Text style={{ color: moveDestination === loc ? '#fff' : '#000' }}>{locationLabels[loc]}</Text>
+                                        </TouchableOpacity>
+                                    ))}
+
+                                    <TouchableOpacity
+                                        onPress={async () => {
+                                            if (!moveDestination) return;
+                                            await moveLot(selectedLotToMove.id, moveQuantity, moveDestination);
+                                            setMoveModalVisible(false);
+                                        }}
+                                        style={styles.modalCloseButton}
+                                    >
+                                        <Text style={{ color: '#fff' }}>Mover</Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity onPress={() => setMoveModalVisible(false)} style={styles.cancelModalButton}>
+                                        <Text>Cancelar</Text>
+                                    </TouchableOpacity>
+                                </>
+                            )}
+                        </View>
+                    </View>
+
                 </Modal>
                 <Toast message={toastMessage} visible={toastVisible} />
             </View>

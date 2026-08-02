@@ -116,12 +116,40 @@ export function FoodProvider({ children }) {
         );
 
         await loadData();
-    }
+    };
 
     const addToShoppingList = async (foodId) => {
         await db.runAsync('UPDATE Food SET inShoppingList = 1 WHERE id = ?', [foodId]);
         await loadData();
-    }
+    };
+
+    const moveLot = async (lotId, moveQuantity, newLocation) => {
+        const current = await db.getAllAsync('SELECT * FROM Lot WHERE id = ?', [lotId]);
+        if (current.length === 0) return;
+        const lot = current[0];
+
+        const qty = Number(moveQuantity);
+        if (qty <= 0 || qty > lot.servings) return;
+
+        if (qty === lot.servings) {
+            //Mover el lote entero
+            await db.runAsync('UPDATE Lot SET location = ? WHERE id = ?', [newLocation, lotId]);
+        } else {
+            //Dividir (crear un lote con lo dividido, restar del original)
+            await db.runAsync(`INSERT INTO Lot (foodId, location, servings, totalServings, percentage, expDate, deleted)
+                VALUES (?,?,?,?,?,?,?)`,
+                [lot.foodId, newLocation, qty, qty, 100, lot.expDate, 0]);
+
+            //Restar del lote original
+            const remainingServings = lot.servings - qty;
+            const remainingPercentage = Math.round((remainingServings / lot.totalServings) * 100);
+            await db.runAsync(` UPDATE Lot SET servings = ?, percentage = ? WHERE id = ?`,
+                [remainingServings, remainingPercentage, lotId]
+            );
+        }
+
+        await loadData();
+    };
 
     const addFood = async (formData) => {
         const { name, brand, store, filter, defaultLocation, weightPerUnit, quantity, expDate, servingsPerUnit, nutritionalInfo } = formData;
@@ -164,8 +192,24 @@ export function FoodProvider({ children }) {
         await loadData(); //recarga Lots y Food desde la BD para reflejar los cambios en pantalla
     };
 
+    const addLotsToExistingFood = async (foodId, location, expDate, quantity) => {
+        const expDateFormatted = expDate.toISOString().split('T')[0];
+        const totalQuantity = Number(quantity) || 1;
+
+        for (let i = 1; i <= totalQuantity; i++) {
+            await db.runAsync(
+                `INSERT INTO Lot (foodId, location, servings, totalServings, percentage, expDate, deleted)
+                VALUES (?, ?, ?, ?, ?, ?, ?)`,
+                [foodId, location, 1, 1, 100, expDateFormatted, 0]
+            );
+        }
+
+        await db.runAsync('UPDATE Food SET inShoppingList = 0, shoppingQuantity = 1 WHERE id = ?', [foodId]);
+        await loadData();
+    };
+
     return (
-        <FoodContext.Provider value={{ food, setFood, lots, setLots, decreaseServing, increaseServing, increaseShoppingQuantity, decreaseShoppingQuantity, deleteFood, addFood, loadData, addToShoppingList, removeFromShoppingList }}>
+        <FoodContext.Provider value={{ food, setFood, lots, setLots, decreaseServing, increaseServing, increaseShoppingQuantity, decreaseShoppingQuantity, deleteFood, moveLot, addFood, loadData, addToShoppingList, removeFromShoppingList, addLotsToExistingFood }}>
             {children}
         </FoodContext.Provider>
     );
