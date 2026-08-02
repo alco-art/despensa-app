@@ -1,6 +1,7 @@
-import { useState, useContext } from 'react';
+import { useState, useContext, useCallback } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Modal } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useFocusEffect } from '@react-navigation/native';
 import FoodContext from '../../context/FoodContext';
 import Toast from '../../components/Toast';
 
@@ -93,8 +94,13 @@ export default function Fridge() {
     const [selectedFoodInfo, setSelectedFoodInfo] = useState(null); //qué alimento se ve
     const [toastVisible, setToastVisible] = useState(false);
     const [toastMessage, setToastMessage] = useState('');
-
     const { food, setFood, lots, setLots, decreaseServing, increaseServing, deleteFood, addToShoppingList } = useContext(FoodContext);
+
+    useFocusEffect (
+        useCallback(() => {
+            setExpandedIndex(null);
+        }, [])
+    );
 
     const sortTable = (column) => {
         let newDirection = 'asc';
@@ -210,7 +216,14 @@ export default function Fridge() {
                                             </TouchableOpacity>
                                         </View>
                                         <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 40 }}>
-                                            <TouchableOpacity onPress={() => { addToShoppingList(foodItem.id); showToast(`${foodItem.Food} añadido a la compra`); }} style={{ flexDirection: 'row', alignItems: 'center', marginTop: 12 }}>
+                                            <TouchableOpacity onPress={() => {
+                                                if (foodItem.InShoppingList) {
+                                                    showToast(`${foodItem.Food} ya está en la lista de la compra.`);
+                                                } else {
+                                                    addToShoppingList(foodItem.id);
+                                                    showToast(`${foodItem.Food} añadido a la compra.`);
+                                                }
+                                                }} style={{ flexDirection: 'row', alignItems: 'center', marginTop: 12 }}>
                                                 <Ionicons name="cart-outline" size={20} />
                                                 <Text style={styles.expandedText}>Añadir a la compra</Text>
                                             </TouchableOpacity>

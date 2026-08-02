@@ -1,7 +1,8 @@
-import { useState, useContext } from 'react';
+import { useState, useContext, useCallback, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter  } from 'expo-router';
+import { useRouter } from 'expo-router';
 import FoodContext from '../../context/FoodContext';
 import HouseholdContext from '../../context/HouseholdContext';
 import ReviewContext from '../../context/ReviewContext';
@@ -32,8 +33,11 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         padding: 10,
         borderBottomWidth: 1,
-        marginBottom: 4,
         borderBottomColor: '#eee'
+    },
+    expandedRowShopping: {
+        padding: 12,
+        backgroundColor: '#e8edf1'
     },
     itemText: {
         flex: 1,
@@ -118,13 +122,22 @@ const styles = StyleSheet.create({
 });
 
 export default function ShoppingList() {
-    const { food } = useContext(FoodContext);
-    const { items } = useContext(HouseholdContext);
+    const { food, increaseShoppingQuantity, decreaseShoppingQuantity, removeFromShoppingList } = useContext(FoodContext);
+    const { items, increaseQuantity, decreaseQuantity, removeItemFromShoppingList } = useContext(HouseholdContext);
     const [checkedItems, setCheckedItems] = useState([]);
     const [shoppingMode, setShoppingMode] = useState(false);
     const [storeDirection, setStoreDirection] = useState(null);
     const [activeStore, setActiveStore] = useState(null);
     const [storeFilterOpen, setStoreFilterOpen] = useState(false);
+    const [expandedKey, setExpandedKey] = useState(null);
+
+    useFocusEffect (
+        useCallback(() => {
+            setExpandedKey(null);
+            setShoppingMode(false);
+            setCheckedItems([]);
+        }, [])
+    );
 
     const foodInList = food.filter(f => f.InShoppingList === 1 || f.InShoppingList === true);
     const foodItems = foodInList.map(f => {
@@ -135,7 +148,7 @@ export default function ShoppingList() {
             name: f.Food,
             brand: f.Brand,
             filter: f.Filter,
-            quantity: 1,
+            quantity: f.ShoppingQuantity || 1,
             store: f.Store
         };
     });
@@ -186,6 +199,10 @@ export default function ShoppingList() {
     const uniqueStores = [...new Set(allItemsByFilter.map(item => item.store).filter(store => store))];
     const sections = [...new Set(allItemsByFilter.map(item => item.filter))];
 
+    const toggleExpand = (key) => {
+        setExpandedKey(expandedKey === key ? null : key);
+    };
+
     const toggleChecked = (key) => {
         if (checkedItems.includes(key)) {
             const newChecked = checkedItems.filter(k => k !== key);
@@ -197,6 +214,7 @@ export default function ShoppingList() {
     };
 
     const startShopping = () => {
+        setExpandedKey(null);
         setShoppingMode(true);
     };
 
@@ -204,6 +222,7 @@ export default function ShoppingList() {
         setShoppingMode(false);
         setCheckedItems([]);
         setActiveStore(null);
+        setExpandedKey(null);
     };
 
     const finishShopping = () => {
@@ -211,6 +230,7 @@ export default function ShoppingList() {
         setReviewItems(selectedItems);
         setShoppingMode(false);
         setCheckedItems([]);
+        setExpandedKey(null);
         router.push('../review-purchase');
     };
 
@@ -272,13 +292,42 @@ export default function ShoppingList() {
                                 {getStoreSortIcon() && <Ionicons name={getStoreSortIcon()} size={14} color="#ffffff" />}
                             </TouchableOpacity>
                         </View>
-                        {tableItems.map(item => (
-                            <View key={item.key} style={styles.row}>
-                                <Text style={styles.quantityCell}>{item.quantity}</Text>
-                                <Text style={styles.cell}>{item.name}</Text>
-                                <Text style={styles.cell}>{item.brand}</Text>
-                                <Text style={styles.cell}>{item.store || '-'}</Text>
-                            </View>
+                        {tableItems.map((item, index) => (
+                            <TouchableOpacity key={item.key} onPress={() => toggleExpand(item.key)}>
+                                <View style={[styles.row, { backgroundColor: index % 2 === 0 ? '#ffffff' : '#f0f4f7' }]}>
+                                    <Text style={styles.quantityCell}>{item.quantity}</Text>
+                                    <Text style={styles.cell}>{item.name}</Text>
+                                    <Text style={styles.cell}>{item.brand}</Text>
+                                    <Text style={styles.cell}>{item.store || '-'}</Text>
+                                </View>
+                                {expandedKey === item.key && (
+                                    <View style={styles.expandedRowShopping}>
+                                        <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 30 }}>
+                                            <TouchableOpacity onPress={() => {
+                                                if (item.type === 'food') decreaseShoppingQuantity(item.id);
+                                                else decreaseQuantity(item.id);
+                                            }} style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                                <Ionicons name="remove-circle-outline" size={20} />
+                                                <Text>Restar</Text>
+                                            </TouchableOpacity>
+                                            <TouchableOpacity onPress={() => {
+                                                if (item.type === 'food') increaseShoppingQuantity(item.id);
+                                                else increaseQuantity(item.id);
+                                            }} style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                                <Ionicons name="add-circle-outline" size={20} />
+                                                <Text>Añadir</Text>
+                                            </TouchableOpacity>
+                                        </View>
+                                        <TouchableOpacity onPress={() => {
+                                            if (item.type === 'food') removeFromShoppingList(item.id);
+                                            else removeItemFromShoppingList(item.id);
+                                        }} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: 12 }}>
+                                            <Ionicons name="trash-outline" size={20} />
+                                            <Text>Eliminar de la lista</Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                )}
+                            </TouchableOpacity>
                         ))}
                     </View>
                 )}
@@ -295,10 +344,10 @@ export default function ShoppingList() {
                         {allItemsByFilter
                             .filter(item => item.filter === section)
                             .filter(item => !activeStore || item.store === activeStore)
-                            .map(item => {
+                            .map((item, index) => {
                                 const isChecked = checkedItems.includes(item.key);
                                 return (
-                                    <TouchableOpacity key={item.key} style={styles.row} onPress={() => toggleChecked(item.key)}>
+                                    <TouchableOpacity key={item.key} style={[styles.row, { backgroundColor: index % 2 === 0 ? '#ffffff' : '#f0f4f7' }]} onPress={() => toggleChecked(item.key)}>
                                         <View style={styles.checkboxCell}>
                                             <Ionicons
                                                 name={isChecked ? "checkbox" : "square-outline"}

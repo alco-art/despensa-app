@@ -31,7 +31,8 @@ export function FoodProvider({ children }) {
                 Fiber: f.fiber,
                 Salt: f.salt
             },
-            InShoppingList: f.inShoppingList === 1
+            InShoppingList: f.inShoppingList === 1,
+            ShoppingQuantity: f.shoppingQuantity
         }));
 
         const transformedLots = lotResult.map(l => ({
@@ -55,7 +56,7 @@ export function FoodProvider({ children }) {
         const lot = current[0];
 
         if (lot.servings <= 0) return; //ya está en 0, no bajamos más
-        
+
         const newServings = lot.servings - 1;
         const newPercentage = Math.round((newServings / lot.totalServings) * 100);
 
@@ -65,8 +66,9 @@ export function FoodProvider({ children }) {
         );
 
         if (newServings === 0) {
+            await db.runAsync('UPDATE Lot SET deleted = 1 WHERE id = ?', [lotId]);
             await db.runAsync('UPDATE Food SET inShoppingList = 1 WHERE id = ?', [lot.foodId]);
-        }
+        };
 
         await loadData();
     }
@@ -89,6 +91,24 @@ export function FoodProvider({ children }) {
 
         await loadData();
     }
+
+    const increaseShoppingQuantity = async (foodId) => {
+        await db.runAsync('UPDATE Food SET shoppingQuantity = shoppingQuantity + 1 WHERE id = ?', [foodId]);
+        await loadData();
+    };
+
+    const decreaseShoppingQuantity = async (foodId) => {
+        const current = await db.getAllAsync('SELECT * FROM Food WHERE id = ?', [foodId]);
+        if (current.length === 0) return;
+        if (current[0].shoppingQuantity <= 1) return;
+        await db.runAsync('UPDATE Food SET shoppingQuantity = shoppingQuantity - 1 WHERE id = ?', [foodId]);
+        await loadData();
+    };
+
+    const removeFromShoppingList = async (foodId) => {
+        await db.runAsync('UPDATE Food SET inShoppingList = 0, shoppingQuantity = 1 WHERE id = ?', [foodId]);
+        await loadData();
+    };
 
     const deleteFood = async (lotId) => {
         await db.runAsync(
@@ -142,10 +162,10 @@ export function FoodProvider({ children }) {
         };
 
         await loadData(); //recarga Lots y Food desde la BD para reflejar los cambios en pantalla
-    }
+    };
 
     return (
-        <FoodContext.Provider value={{ food, setFood, lots, setLots, decreaseServing, increaseServing, deleteFood, addFood, loadData, addToShoppingList }}>
+        <FoodContext.Provider value={{ food, setFood, lots, setLots, decreaseServing, increaseServing, increaseShoppingQuantity, decreaseShoppingQuantity, deleteFood, addFood, loadData, addToShoppingList, removeFromShoppingList }}>
             {children}
         </FoodContext.Provider>
     );

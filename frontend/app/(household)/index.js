@@ -1,6 +1,7 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useCallback } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Modal } from "react-native";
 import { Ionicons } from '@expo/vector-icons';
+import { useFocusEffect } from '@react-navigation/native';
 import HouseholdContext from "../../context/HouseholdContext";
 import Toast from "../../components/Toast";
 
@@ -92,6 +93,12 @@ export default function Household() {
     const [toastMessage, setToastMessage] = useState('');
 
     const { items, decreaseQuantity, increaseQuantity, deleteItem, addItemToShoppingList } = useContext(HouseholdContext);
+
+    useFocusEffect (
+        useCallback(() => {
+            setExpandedIndex(null);
+        }, [])
+    );
 
     const showToast = (message) => {
         setToastMessage(message);

@@ -6,13 +6,13 @@ import { HouseholdProvider } from "../context/HouseholdContext";
 import { initDatabase } from "../database/db";
 import { ReviewProvider } from "../context/ReviewContext";
 
+initDatabase();
+
 export default function RootLayout() {
     useEffect(() => {
-        initDatabase();
         NavigationBar.setBackgroundColorAsync('#ffffff');
         NavigationBar.setButtonStyleAsync('dark');
     }, []);
-
 
     return (
         <ReviewProvider>

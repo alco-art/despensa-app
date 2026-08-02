@@ -1,6 +1,7 @@
-import { useState, useContext } from 'react';
+import { useState, useContext, useCallback } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Modal } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useFocusEffect } from '@react-navigation/native';
 import FoodContext from '../../context/FoodContext';
 import Toast from '../../components/Toast';
 
@@ -95,6 +96,12 @@ export default function Freezer() {
     const [toastMessage, setToastMessage] = useState('');
     const { food, setFood, lots, setLots, decreaseServing, increaseServing, deleteFood, addToShoppingList } = useContext(FoodContext);
 
+    useFocusEffect (
+        useCallback(() => {
+            setExpandedIndex(null);
+        }, [])
+    );
+    
     const sortTable = (column) => {
         let newDirection = 'asc';
         if (sortColumn === column && direction === 'asc') {

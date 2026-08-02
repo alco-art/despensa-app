@@ -134,7 +134,7 @@ export default function AddFood() {
         setStore(foodItem.Store || '');
         setFilter(foodItem.Filter || '');
         setDefaultLocation(foodItem.DefaultLocation || '');
-        setWeightPerUnit(foodItem.WeightPerUnit ? String(foodItem.WeightPerUnit) : '');
+        setWeightPerUnit(foodItem.weightPerUnit ? String(foodItem.weightPerUnit) : '');
         setNutritionalInfo({
             Calories: foodItem.NutritionalInfo ? String(foodItem.NutritionalInfo.Calories) : '',
             Carbs: foodItem.NutritionalInfo ? String(foodItem.NutritionalInfo.Carbs) : '',

@@ -18,7 +18,8 @@ export const initDatabase = () => {
             fat REAL,
             fiber REAL,
             salt REAL,
-            inShoppingList INTEGER DEFAULT 0
+            inShoppingList INTEGER DEFAULT 0,
+            shoppingQuantity INTEGER DEFAULT 1
         );
     `);
 
