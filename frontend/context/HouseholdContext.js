@@ -41,7 +41,7 @@ export function HouseholdProvider({ children }) {
         await loadItems();
     };
 
-    const descreaseQuantity = async (itemId) => {
+    const decreaseQuantity = async (itemId) => {
         const current = await db.getAllAsync('SELECT * FROM Item WHERE id = ?', [itemId]);
         if (current.length === 0) return;
 
