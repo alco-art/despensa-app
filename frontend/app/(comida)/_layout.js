@@ -16,13 +16,9 @@ export default function Layout() {
               title: 'Despensa',
               tabBarIcon: ({ color, size }) => <Ionicons name="file-tray-stacked" size={size} color={color} />
           }} />
-          <Tabs.Screen name="shopping-list" options={{
-              title: 'Lista compra',
-              tabBarIcon: ({ color, size }) => <Ionicons name="cart" size={size} color={color} />
-          }} />
-          <Tabs.Screen name="more" options={{
-              title: 'Más',
-              tabBarIcon: ({ color, size }) => <Ionicons name="ellipsis-horizontal" size={size} color={color} />
+          <Tabs.Screen name="add-food" options={{
+              title: 'Añadir',
+              tabBarIcon: ({ color, size }) => <Ionicons name="add-circle" size={size} color={color} /> //nutrition-outline
           }} />
     </Tabs>
   );

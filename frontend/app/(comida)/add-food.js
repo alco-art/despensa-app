@@ -4,7 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { Stack, useRouter } from "expo-router";
 import DateTimePicker from '@react-native-community/datetimepicker';
-import FoodContext from "../context/FoodContext";
+import FoodContext from "../../context/FoodContext";
 
 const styles = StyleSheet.create({
     scrollView: {

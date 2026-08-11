@@ -3,9 +3,9 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-nati
 import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import FoodContext from '../../context/FoodContext';
-import HouseholdContext from '../../context/HouseholdContext';
-import ReviewContext from '../../context/ReviewContext';
+import FoodContext from '../context/FoodContext';
+import HouseholdContext from '../context/HouseholdContext';
+import ReviewContext from '../context/ReviewContext';
 
 const styles = StyleSheet.create({
     fixedHeader: {

@@ -1,4 +1,5 @@
-import { Stack } from "expo-router";
+import { Drawer } from 'expo-router/drawer';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import * as NavigationBar from 'expo-navigation-bar';
 import { useEffect } from "react";
 import { FoodProvider } from "../context/FoodContext";
@@ -15,14 +16,23 @@ export default function RootLayout() {
     }, []);
 
     return (
-        <ReviewProvider>
-            <FoodProvider>
-                <HouseholdProvider>
-                    <Stack screenOptions={{ headerShown: false }}>
-                        {/*Aquí Expo Router detecta automáticamente (tabs), remaining, search*/}
-                    </Stack>
-                </HouseholdProvider>
-            </FoodProvider>
-        </ReviewProvider>
+        <GestureHandlerRootView>
+            <ReviewProvider>
+                <FoodProvider>
+                    <HouseholdProvider>
+                        <Drawer screenOptions={{ headerShown: true }} initialRouteName='index'>
+                            <Drawer.Screen name="index" options={{ title: 'Inicio' }} />
+                            <Drawer.Screen name="(comida)" options={{ title: 'Comida' }} />
+                            <Drawer.Screen name="(articulos)" options={{ title: 'Artículos' }} />
+                            <Drawer.Screen name="shopping-list" options={{ title: 'Lista de la compra' }} />
+                            <Drawer.Screen name="search" options={{ title: 'Buscar '}} />
+                            <Drawer.Screen name="review-purchase" options={{ drawerItemStyle: { display: 'none' }}} />
+                            <Drawer.Screen name="more" options={{ drawerItemStyle: { display: 'none' }}} />
+                        </Drawer>
+                    </HouseholdProvider>
+                </FoodProvider>
+            </ReviewProvider>
+        </GestureHandlerRootView>
+
     );
 }
