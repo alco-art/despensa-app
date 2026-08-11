@@ -5,7 +5,7 @@ export default function HouseholdLayout() {
     const router = useRouter();
 
     return (
-        <Tabs>
+        <Tabs screenOptions={{ headerShown: false }}>
             <Tabs.Screen name="index" options={{
                 title: 'Lista artículos',
                 tabBarIcon: ({ color, size }) => <Ionicons name="home" size={size} color={color} />

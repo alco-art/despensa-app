@@ -1,6 +1,7 @@
 import { useState, useContext, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Alert, KeyboardAvoidingView, Platform, Keyboard } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import HouseholdContext from '../../context/HouseholdContext';
 
 const styles = StyleSheet.create({
@@ -40,17 +41,35 @@ const styles = StyleSheet.create({
         marginBottom: 8,
         gap: 8
     },
-    submitButton: {
-        backgroundColor: '#4a5a6a',
-        padding: 12,
+    buttonBar: {
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        alignItems: 'center',
+        borderTopWidth: 1,
+        paddingBottom: 8,
+        borderTopColor: '#ddd',
+        backgroundColor: '#ffffff',
+        paddingVertical: 8
+    },
+    cancelButton: {
+        flex: 1,
+        marginLeft: 8,
+        marginRight: 4,
+        paddingVertical: 10,
         borderRadius: 6,
+        borderWidth: 1,
+        borderColor: '#999',
         alignItems: 'center'
     },
-    buttonBar: {
-        padding: 8,
-        borderTopWidth: 1,
-        borderTopColor: '#ddd',
-        backgroundColor: '#ffffff'
+    submitButton: {
+        flex: 1,
+        marginLeft: 4,
+        marginRight: 8,
+        paddingVertical: 10,
+        borderRadius: 6,
+        borderWidth: 1,
+        backgroundColor: '#4a5a6a',
+        alignItems: 'center'
     }
 });
 
@@ -58,6 +77,7 @@ const filterOptions = ["Limpieza", "Higiene", "Hogar", "Otros"];
 
 export default function AddItem() {
     const { items, addItem } = useContext(HouseholdContext);
+    const router = useRouter();
     const [name, setName] = useState('');
     const [brand, setBrand] = useState('');
     const [store, setStore] = useState('');
@@ -85,7 +105,7 @@ export default function AddItem() {
         setFilter(item.Filter);
     };
 
-    const handelSubmit = async () => {
+    const handleSubmit = async () => {
         if (!name || !brand || !store || !filter) {
             Alert.alert('Faltan datos', 'Rellena nombre, marca, tienda y filtro.');
             return;
@@ -191,7 +211,10 @@ export default function AddItem() {
             </ScrollView>
 
             <View style={styles.buttonBar}>
-                <TouchableOpacity style={styles.submitButton} onPress={handelSubmit}>
+                <TouchableOpacity style={styles.cancelButton} onPress={() => router.back()}>
+                    <Text>Cancelar</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
                     <Text style={{ color: '#fff' }}>Guardar</Text>
                 </TouchableOpacity>
             </View>

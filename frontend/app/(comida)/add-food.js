@@ -2,7 +2,7 @@ import { useState, useContext, useEffect } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, ScrollView, Platform, Alert, Keyboard } from "react-native";
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
-import { Stack, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import DateTimePicker from '@react-native-community/datetimepicker';
 import FoodContext from "../../context/FoodContext";
 
@@ -62,6 +62,16 @@ const styles = StyleSheet.create({
         backgroundColor: '#ffffff',
         paddingVertical: 8
     },
+    buttonBar: {
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        alignItems: 'center',
+        borderTopWidth: 1,
+        paddingBottom: 8,
+        borderTopColor: '#ddd',
+        backgroundColor: '#ffffff',
+        paddingVertical: 8
+    },
     cancelButton: {
         flex: 1,
         marginLeft: 8,
@@ -70,6 +80,16 @@ const styles = StyleSheet.create({
         borderRadius: 6,
         borderWidth: 1,
         borderColor: '#999',
+        alignItems: 'center'
+    },
+    submitButton: {
+        flex: 1,
+        marginLeft: 4,
+        marginRight: 8,
+        paddingVertical: 10,
+        borderRadius: 6,
+        borderWidth: 1,
+        backgroundColor: '#4a5a6a',
         alignItems: 'center'
     },
     submitButton: {
@@ -159,8 +179,7 @@ export default function AddFood() {
 
     return (
         <>
-            <Stack.Screen options={{ title: 'Añadir alimento', headerShown: true }} />
-            <SafeAreaView style={{ flex: 1 }} edges={['bottom']}>
+            <SafeAreaView style={{ flex: 1 }} edges={[]}>
                 <KeyboardAvoidingView style={{ flex: 1 }}
                     behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
                     <ScrollView style={styles.scrollView} contentContainerStyle={[styles.container, { paddingBottom: keyboardVisible ? 250 : 0 }]} showsVerticalScrollIndicator={true}>
@@ -391,7 +410,6 @@ export default function AddFood() {
                 </KeyboardAvoidingView>
 
                 <View style={styles.buttonBar}>
-                    {/* style={[styles.buttonBar, { paddingBottom: insets.bottom > 0 ? insets.bottom * 0.4 : 8 }]} */}
                     <TouchableOpacity style={styles.cancelButton} onPress={() => router.back()}>
                         <Text>Cancelar</Text>
                     </TouchableOpacity>

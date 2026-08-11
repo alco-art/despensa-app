@@ -33,8 +33,8 @@ const styles = StyleSheet.create({
     },
     container: {
         flex: 1,
-        paddingHorizontal: 4,
-        marginTop: 20
+        paddingHorizontal: 8,
+        marginTop: 8
     },
     filterButton: {
         flexDirection: 'row',
@@ -59,7 +59,9 @@ const styles = StyleSheet.create({
     headerRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#4a5a6a'
+        backgroundColor: '#4a5a6a',
+        borderTopLeftRadius: 8,
+        borderTopRightRadius: 8
     },
     expandedRow: {
         padding: 12,
@@ -77,7 +79,7 @@ const styles = StyleSheet.create({
         fontWeight: 'bold'
     },
     expandedText: {
-        fontSize: 12
+        fontSize: 13
     },
     quantitySelector: {
         flexDirection: 'row',
@@ -215,12 +217,14 @@ export default function Fridge() {
 
                 {visibleLots.map((lot, index) => {
                     const foodItem = food.find(f => f.id === lot.FoodId);
+                    const isLast = index === visibleLots.length - 1;
                     //nombre, filtro (ficha del producto) -> foodItem
                     //serving y expDate son datos físicos de un lote concreto -> lot
+
                     return (
                         (
                             <TouchableOpacity key={index} onPress={() => toggleExpand(lot.id)}>
-                                <View style={[styles.row, { backgroundColor: index % 2 === 0 ? '#ffffff' : '#f0f4f7' }]}>
+                                <View style={[styles.row, { backgroundColor: index % 2 === 0 ? '#ffffff' : '#f0f4f7' }, isLast && { borderBottomLeftRadius: 8, borderBottomRightRadius: 8}]}>
                                     <Text style={[styles.cell]}>{foodItem.Food}</Text>
                                     <Text style={[styles.cell]}>{lot.Servings}</Text>
                                     <Text style={[styles.cell, { flex: 1.2 }]}>{formatDate(lot.ExpDate)}</Text>
