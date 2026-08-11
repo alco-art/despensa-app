@@ -86,7 +86,7 @@ export function HouseholdProvider({ children }) {
     }
 
     return (
-        <HouseholdContext.Provider value={{ items, loadItems, addItem, descreaseQuantity, increaseQuantity, deleteItem, addItemToShoppingList, removeItemFromShoppingList, confirmPurchaseItem }}>
+        <HouseholdContext.Provider value={{ items, loadItems, addItem, decreaseQuantity, increaseQuantity, deleteItem, addItemToShoppingList, removeItemFromShoppingList, confirmPurchaseItem }}>
             {children}
         </HouseholdContext.Provider>
     );

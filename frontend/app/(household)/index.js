@@ -94,7 +94,7 @@ export default function Household() {
 
     const { items, decreaseQuantity, increaseQuantity, deleteItem, addItemToShoppingList } = useContext(HouseholdContext);
 
-    useFocusEffect (
+    useFocusEffect(
         useCallback(() => {
             setExpandedIndex(null);
         }, [])
@@ -198,7 +198,13 @@ export default function Household() {
                                     <Ionicons name="information-circle-outline" size={20} />
                                     <Text style={styles.expandedText}>Info</Text>
                                 </TouchableOpacity>
-                                <TouchableOpacity onPress={() => decreaseQuantity(item.id)} style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                <TouchableOpacity onPress={() => {
+                                    if (item.Quantity === 1) {
+                                        showToast(`${item.Name} añadido a la lista de la compra.`);
+                                    }
+                                    decreaseQuantity(item.id)
+                                }}
+                                    style={{ flexDirection: 'row', alignItems: 'center' }}>
                                     <Ionicons name="remove-circle-outline" size={20} />
                                     <Text style={styles.expandedText}>Restar</Text>
                                 </TouchableOpacity>

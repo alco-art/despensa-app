@@ -233,7 +233,13 @@ export default function Pantry() {
                                                 <Ionicons name="information-circle-outline" size={20} />
                                                 <Text style={styles.expandedText}>Info</Text>
                                             </TouchableOpacity>
-                                            <TouchableOpacity onPress={() => decreaseServing(lot.id)} style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                            <TouchableOpacity onPress={() => {
+                                                if (lot.Servings === 1) {
+                                                    showToast(`${foodItem.Food} añadido a la lista de la compra.`);
+                                                }
+                                                decreaseServing(lot.id)
+                                            }}
+                                                style={{ flexDirection: 'row', alignItems: 'center' }}>
                                                 <Ionicons name="remove-circle-outline" size={20} />
                                                 <Text style={styles.expandedText}>Restar porción</Text>
                                             </TouchableOpacity>

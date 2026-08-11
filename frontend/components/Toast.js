@@ -4,7 +4,7 @@ import { View, Text, StyleSheet } from 'react-native';
 const styles = StyleSheet.create({
     toast: {
         position: 'absolute',
-        bottom: 30,
+        top: 460,
         left: 20,
         right: 20,
         backgroundColor: '#333',
