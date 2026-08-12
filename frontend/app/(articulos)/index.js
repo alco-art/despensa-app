@@ -1,5 +1,5 @@
 import { useState, useContext, useCallback } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Modal } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Modal, Image } from "react-native";
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import HouseholdContext from "../../context/HouseholdContext";
@@ -89,6 +89,31 @@ const styles = StyleSheet.create({
         color: '#999',
         fontSize: 14,
         fontStyle: 'italic'
+    },
+    modalImage: {
+        width: '100%',
+        height: 150,
+        borderRadius: 8,
+        marginBottom: 8
+    },
+    fullscreenOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.9)',
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    fullscreenImage: {
+        width: '100%',
+        height: '80%'
+    },
+    fullscreenCloseButton: {
+        position: 'absolute',
+        top: 40,
+        right: 20,
+        zIndex: 1,
+        backgroundColor: 'rgba(255,255,255,0.2)',
+        borderRadius: 20,
+        padding: 6
     }
 });
 
@@ -100,6 +125,7 @@ export default function Household() {
     const [activeFilter, setActiveFilter] = useState(null);
     const [infoModalVisible, setInfoModalVisible] = useState(false);
     const [selectedItemInfo, setSelectedItemInfo] = useState(null);
+    const [imageFullscreenVisible, setImageFullscreenVisible] = useState(false);
     const [toastVisible, setToastVisible] = useState(false);
     const [toastMessage, setToastMessage] = useState('');
 
@@ -263,6 +289,11 @@ export default function Household() {
                                 {selectedItemInfo.Weight != null && (
                                     <Text>Peso: {selectedItemInfo.Weight} g</Text>
                                 )}
+                                {selectedItemInfo.Photo && (
+                                    <TouchableOpacity onPress={() => setImageFullscreenVisible(true)}>
+                                        <Image source={{ uri: selectedItemInfo.Photo }} style={styles.modalImage} />
+                                    </TouchableOpacity>
+                                )}
                                 <TouchableOpacity onPress={() => setInfoModalVisible(false)} style={styles.modalCloseButton}>
                                     <Text style={{ color: '#fff' }}>Cerrar</Text>
                                 </TouchableOpacity>
@@ -270,6 +301,21 @@ export default function Household() {
                         )}
                     </View>
                 </View>
+            </Modal>
+
+            <Modal visible={imageFullscreenVisible} transparent={true} animationType="fade">
+                <TouchableOpacity
+                    style={styles.fullscreenOverlay}
+                    activeOpacity={1}
+                    onPress={() => setImageFullscreenVisible(false)}
+                >
+                    <View style={styles.fullscreenCloseButton}>
+                        <Ionicons name="close" size={28} color="#fff" />
+                    </View>
+                    {selectedItemInfo?.Photo && (
+                        <Image source={{ uri: selectedItemInfo.Photo }} style={styles.fullscreenImage} resizeMode="contain" />
+                    )}
+                </TouchableOpacity>
             </Modal>
 
             <Toast message={toastMessage} visible={toastVisible} />

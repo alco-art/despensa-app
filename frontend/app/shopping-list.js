@@ -1,5 +1,5 @@
 import { useState, useContext, useCallback, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Modal, Image } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -84,7 +84,7 @@ const styles = StyleSheet.create({
     },
     subHeaderRow: {
         flexDirection: 'row',
-        alignItems: 'center',
+        alignItems: 'flex-start',
         backgroundColor: '#6c7d8c'
     },
     cell: {
@@ -141,6 +141,35 @@ const styles = StyleSheet.create({
         color: '#999',
         fontSize: 14,
         fontStyle: 'italic'
+    },
+    photoCell: {
+        width: 34,
+        alignItems: 'center',
+        paddingRight: 22
+    },
+    rowThumbnail: {
+        width: 28,
+        height: 28,
+        borderRadius: 4
+    },
+    fullscreenOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.9)',
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    fullscreenImage: {
+        width: '100%',
+        height: '80%'
+    },
+    fullscreenCloseButton: {
+        position: 'absolute',
+        top: 40,
+        right: 20,
+        zIndex: 1,
+        backgroundColor: 'rgba(255,255,255,0.2)',
+        borderRadius: 20,
+        padding: 6
     }
 });
 
@@ -153,6 +182,8 @@ export default function ShoppingList() {
     const [activeStore, setActiveStore] = useState(null);
     const [storeFilterOpen, setStoreFilterOpen] = useState(false);
     const [expandedKey, setExpandedKey] = useState(null);
+    const [imageFullscreenVisible, setImageFullscreenVisible] = useState(false);
+    const [selectedPhoto, setSelectedPhoto] = useState(null);
     const [toastVisible, setToastVisible] = useState(false);
     const [toastMessage, setToastMessage] = useState('');
 
@@ -175,7 +206,8 @@ export default function ShoppingList() {
             brand: f.Brand,
             filter: f.Filter,
             quantity: f.ShoppingQuantity || 1,
-            store: f.Store
+            store: f.Store,
+            photo: f.Photo
         };
     });
 
@@ -189,7 +221,8 @@ export default function ShoppingList() {
             brand: i.Brand,
             filter: i.Filter,
             quantity: i.Quantity || 1,
-            store: i.Store
+            store: i.Store,
+            photo: i.Photo
         };
     });
 
@@ -374,7 +407,8 @@ export default function ShoppingList() {
                             <Text style={styles.sectionTitle}>{section}</Text>
                             <View style={styles.subHeaderRow}>
                                 <View style={styles.checkboxCell} />
-                                <Text style={[styles.quantityCell, styles.headerText]}>Cant.</Text>
+                                <Text style={[styles.quantityCell, styles.headerText, { width: 44, paddingHorizontal: 2, flex: 0 }]}>Cant.</Text>
+                                <View style={styles.photoCell} />
                                 <Text style={[styles.cell, styles.headerText]}>Nombre</Text>
                                 <Text style={[styles.cell, styles.headerText]}>Marca (Tienda)</Text>
                             </View>
@@ -393,7 +427,14 @@ export default function ShoppingList() {
                                                 color={isChecked ? "#4a5a6a" : "#999"}
                                             />
                                         </View>
-                                        <Text style={[styles.quantityCell, isChecked && styles.checkedText]}>{item.quantity}</Text>
+                                        <Text style={[styles.quantityCell, isChecked && styles.checkedText, { paddingLeft: 8, width: 44, flex: 0 }]}>{item.quantity}</Text>
+                                        <View style={styles.photoCell}>
+                                            {item.photo && (
+                                                <TouchableOpacity onPress={() => { setSelectedPhoto(item.photo); setImageFullscreenVisible(true); }}>
+                                                    <Image source={{ uri: item.photo }} style={styles.rowThumbnail} />
+                                                </TouchableOpacity>
+                                            )}
+                                        </View>
                                         <Text style={[styles.cell, isChecked && styles.checkedText]}>{item.name}</Text>
                                         <Text style={[styles.cell, isChecked && styles.checkedText]}>
                                             {item.brand}{item.store ? ` (${item.store})` : ''}
@@ -405,6 +446,17 @@ export default function ShoppingList() {
                     );
                 })}
             </ScrollView>
+
+            <Modal visible={imageFullscreenVisible} transparent={true} animationType="fade">
+                <TouchableOpacity style={styles.fullscreenOverlay} activeOpacity={1} onPress={() => setImageFullscreenVisible(false)}>
+                    <View style={styles.fullscreenCloseButton}>
+                        <Ionicons name="close" size={28} color="#fff" />
+                    </View>
+                    {selectedPhoto && (
+                        <Image source={{ uri: selectedPhoto }} style={styles.fullscreenImage} resizeMode="contain" />
+                    )}
+                </TouchableOpacity>
+            </Modal>
 
             {!shoppingMode && (
                 <View style={{ padding: 12 }}>

@@ -174,6 +174,7 @@ export default function AddFood() {
         setFilter(foodItem.Filter || '');
         setDefaultLocation(foodItem.DefaultLocation || '');
         setWeightPerUnit(foodItem.weightPerUnit ? String(foodItem.weightPerUnit) : '');
+        setPhoto(foodItem.Photo || null);
         setNutritionalInfo({
             Calories: foodItem.NutritionalInfo ? String(foodItem.NutritionalInfo.Calories) : '',
             Carbs: foodItem.NutritionalInfo ? String(foodItem.NutritionalInfo.Carbs) : '',
@@ -189,9 +190,10 @@ export default function AddFood() {
             Alert.alert('Faltan datos', 'Rellena nombre, marca, ubicación, peso y calorías.');
             return;
         }
-        await addFood({ name, brand, store, filter, defaultLocation, weightPerUnit, quantity, expDate, servingsPerUnit, nutritionalInfo });
+        await addFood({ name, brand, store, filter, defaultLocation, weightPerUnit, quantity, expDate, servingsPerUnit, nutritionalInfo, photo });
         setName(''); setBrand(''); setStore(''); setFilter(''); setDefaultLocation(''); setWeightPerUnit(''); setQuantity(''); setExpDate(new Date()); setServingsPerUnit('');
         setNutritionalInfo({ Calories: '', Carbs: '', Protein: '', Fat: '', Fiber: '', Salt: '' });
+        setPhoto(null);
         Alert.alert('Guardado', 'Alimento añadido correctamente.');
     };
 

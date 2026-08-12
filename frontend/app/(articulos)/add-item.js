@@ -1,7 +1,8 @@
 import { useState, useContext, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Alert, KeyboardAvoidingView, Platform, Keyboard } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Alert, KeyboardAvoidingView, Platform, Keyboard, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import * as ImagePicker from 'expo-image-picker';
 import HouseholdContext from '../../context/HouseholdContext';
 
 const styles = StyleSheet.create({
@@ -84,9 +85,27 @@ export default function AddItem() {
     const [filter, setFilter] = useState('');
     const [quantity, setQuantity] = useState('');
     const [weight, setWeight] = useState('');
+    const [photo, setPhoto] = useState(null);
     const [filterOpen, setFilterOpen] = useState(false);
     const [existingItemOpen, setExistingItemOpen] = useState(false);
     const [keyboardVisible, setKeyboardVisible] = useState(false);
+
+    const pickImage = async () => {
+    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permission.granted) {
+        Alert.alert('Permiso necesario', 'Necesitamos acceso a tus fotos para añadir una imagen.');
+        return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ['images'],
+        quality: 0.5,
+    });
+
+    if (!result.canceled) {
+        setPhoto(result.assets[0].uri);
+    }
+};
 
     useEffect(() => {
         const showSub = Keyboard.addListener('keyboardDidShow', () => setKeyboardVisible(true));
@@ -103,6 +122,7 @@ export default function AddItem() {
         setBrand(item.Brand);
         setStore(item.Store || '');
         setFilter(item.Filter);
+        setPhoto(item.Photo || null);
     };
 
     const handleSubmit = async () => {
@@ -111,8 +131,8 @@ export default function AddItem() {
             return;
         }
 
-        await addItem({ name, brand, store, filter, quantity, weight });
-        setName(''); setBrand(''); setStore(''); setFilter(''); setQuantity(''); setWeight('');
+        await addItem({ name, brand, store, filter, quantity, weight, photo });
+        setName(''); setBrand(''); setStore(''); setFilter(''); setQuantity(''); setWeight(''), setPhoto(null);
         Alert.alert('Guardado', 'Artículo añadido correctamente.');
     };
 
@@ -213,6 +233,16 @@ export default function AddItem() {
                         style={styles.input}
                         keyboardType='numeric' />
                 </View>
+                <View style={styles.fieldGroup}>
+    <Text style={styles.label}>Foto (opcional)</Text>
+    <TouchableOpacity onPress={pickImage} style={styles.filterButton}>
+        <Text>{photo ? 'Cambiar foto' : 'Seleccionar foto'}</Text>
+        <Ionicons name="camera-outline" size={16} />
+    </TouchableOpacity>
+    {photo && (
+        <Image source={{ uri: photo }} style={{ width: 100, height: 100, borderRadius: 8, marginTop: 8 }} />
+    )}
+</View>
             </ScrollView>
 
             <View style={styles.buttonBar}>
