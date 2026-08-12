@@ -146,6 +146,7 @@ export default function AddItem() {
                         value={name}
                         onChangeText={setName}
                         placeholder="Ej: Papel higiénico"
+                        placeholderTextColor="#999"
                         style={styles.input} />
                 </View>
                 <View style={styles.fieldGroup}>
@@ -156,6 +157,7 @@ export default function AddItem() {
                         value={brand}
                         onChangeText={setBrand}
                         placeholder="Ej: Colhogar"
+                        placeholderTextColor="#999"
                         style={styles.input} />
                 </View>
                 <View style={styles.fieldGroup}>
@@ -166,6 +168,7 @@ export default function AddItem() {
                         value={store}
                         onChangeText={setStore}
                         placeholder="Ej: Mercadona"
+                        placeholderTextColor="#999"
                         style={styles.input} />
                 </View>
                 <View style={styles.fieldGroup}>
@@ -194,6 +197,7 @@ export default function AddItem() {
                         value={quantity}
                         onChangeText={setQuantity}
                         placeholder="Ej: 2 (Por defecto 1)"
+                        placeholderTextColor="#999"
                         style={styles.input}
                         keyboardType='numeric' />
                 </View>
@@ -205,6 +209,7 @@ export default function AddItem() {
                         value={weight}
                         onChangeText={setWeight}
                         placeholder="Ej: 250 (g/ml)"
+                        placeholderTextColor="#999"
                         style={styles.input}
                         keyboardType='numeric' />
                 </View>

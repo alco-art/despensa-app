@@ -208,6 +208,7 @@ export default function AddFood() {
                                 value={name}
                                 onChangeText={setName}
                                 placeholder="Ej: Carne picada"
+                                placeholderTextColor="#999"
                                 style={styles.input}>
                             </TextInput>
                         </View>
@@ -220,6 +221,7 @@ export default function AddFood() {
                                 value={brand}
                                 onChangeText={setBrand}
                                 placeholder="Ej: Hacendado"
+                                placeholderTextColor="#999"
                                 style={styles.input}>
                             </TextInput>
                         </View>
@@ -232,6 +234,7 @@ export default function AddFood() {
                                 value={store}
                                 onChangeText={setStore}
                                 placeholder="Ej: Mercadona"
+                                placeholderTextColor="#999"
                                 style={styles.input}
                             />
                         </View>
@@ -282,6 +285,7 @@ export default function AddFood() {
                                 value={weightPerUnit}
                                 onChangeText={setWeightPerUnit}
                                 placeholder="Ej: 250"
+                                placeholderTextColor="#999"
                                 style={styles.input}
                                 keyboardType="numeric">
                             </TextInput>
@@ -295,6 +299,7 @@ export default function AddFood() {
                                 value={quantity}
                                 onChangeText={setQuantity}
                                 placeholder="Ej: 2"
+                                placeholderTextColor="#999"
                                 style={styles.input}
                                 keyboardType="numeric">
                             </TextInput>
@@ -331,6 +336,7 @@ export default function AddFood() {
                                 value={servingsPerUnit}
                                 onChangeText={setServingsPerUnit}
                                 placeholder="Ej: 4"
+                                placeholderTextColor="#999"
                                 style={styles.input}
                                 keyboardType="numeric">
                             </TextInput>
@@ -345,29 +351,8 @@ export default function AddFood() {
                                 <TextInput
                                     value={nutritionalInfo.Calories}
                                     onChangeText={(text) => setNutritionalInfo({ ...nutritionalInfo, Calories: text })}
-                                    placeholder="Ej: 250"
-                                    style={styles.input}
-                                    keyboardType="numeric">
-                                </TextInput>
-                            </View>
-
-                            <View style={styles.fieldGroup}>
-                                <Text style={styles.label}>Carbohidratos (g por 100g)</Text>
-                                <TextInput
-                                    value={nutritionalInfo.Carbs}
-                                    onChangeText={(text) => setNutritionalInfo({ ...nutritionalInfo, Carbs: text })}
-                                    placeholder="Ej: 250"
-                                    style={styles.input}
-                                    keyboardType="numeric">
-                                </TextInput>
-                            </View>
-
-                            <View style={styles.fieldGroup}>
-                                <Text style={styles.label}>Proteína (g por 100g)</Text>
-                                <TextInput
-                                    value={nutritionalInfo.Protein}
-                                    onChangeText={(text) => setNutritionalInfo({ ...nutritionalInfo, Protein: text })}
-                                    placeholder="Ej: 250"
+                                    placeholder="Ej: 400"
+                                    placeholderTextColor="#999"
                                     style={styles.input}
                                     keyboardType="numeric">
                                 </TextInput>
@@ -378,7 +363,20 @@ export default function AddFood() {
                                 <TextInput
                                     value={nutritionalInfo.Fat}
                                     onChangeText={(text) => setNutritionalInfo({ ...nutritionalInfo, Fat: text })}
-                                    placeholder="Ej: 250"
+                                    placeholder="Ej: 40"
+                                    placeholderTextColor="#999"
+                                    style={styles.input}
+                                    keyboardType="numeric">
+                                </TextInput>
+                            </View>
+
+                            <View style={styles.fieldGroup}>
+                                <Text style={styles.label}>Carbohidratos (g por 100g)</Text>
+                                <TextInput
+                                    value={nutritionalInfo.Carbs}
+                                    onChangeText={(text) => setNutritionalInfo({ ...nutritionalInfo, Carbs: text })}
+                                    placeholder="Ej: 2"
+                                    placeholderTextColor="#999"
                                     style={styles.input}
                                     keyboardType="numeric">
                                 </TextInput>
@@ -389,7 +387,20 @@ export default function AddFood() {
                                 <TextInput
                                     value={nutritionalInfo.Fiber}
                                     onChangeText={(text) => setNutritionalInfo({ ...nutritionalInfo, Fiber: text })}
-                                    placeholder="Ej: 250"
+                                    placeholder="Ej: 10"
+                                    placeholderTextColor="#999"
+                                    style={styles.input}
+                                    keyboardType="numeric">
+                                </TextInput>
+                            </View>
+
+                            <View style={styles.fieldGroup}>
+                                <Text style={styles.label}>Proteína (g por 100g)</Text>
+                                <TextInput
+                                    value={nutritionalInfo.Protein}
+                                    onChangeText={(text) => setNutritionalInfo({ ...nutritionalInfo, Protein: text })}
+                                    placeholder="Ej: 25"
+                                    placeholderTextColor="#999"
                                     style={styles.input}
                                     keyboardType="numeric">
                                 </TextInput>
@@ -400,7 +411,8 @@ export default function AddFood() {
                                 <TextInput
                                     value={nutritionalInfo.Salt}
                                     onChangeText={(text) => setNutritionalInfo({ ...nutritionalInfo, Salt: text })}
-                                    placeholder="Ej: 0.5"
+                                    placeholder="Ej: 1.5"
+                                    placeholderTextColor="#999"
                                     style={styles.input}
                                     keyboardType="numeric"
                                 />

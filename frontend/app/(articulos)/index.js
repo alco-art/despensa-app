@@ -33,8 +33,8 @@ const styles = StyleSheet.create({
     },
     container: {
         flex: 1,
-        paddingHorizontal: 4,
-        marginTop: 20
+        paddingHorizontal: 8,
+        marginTop: 8
     },
     filterButton: {
         flexDirection: 'row',
@@ -59,7 +59,9 @@ const styles = StyleSheet.create({
     headerRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#4a5a6a'
+        backgroundColor: '#4a5a6a',
+        borderTopLeftRadius: 8,
+        borderTopRightRadius: 8
     },
     expandedRow: {
         padding: 12,
@@ -77,7 +79,7 @@ const styles = StyleSheet.create({
         fontWeight: 'bold'
     },
     expandedText: {
-        fontSize: 14
+        fontSize: 13
     }
 });
 
@@ -183,50 +185,53 @@ export default function Household() {
                 </TouchableOpacity>
             </View>
 
-            {visibleItems.map((item, index) => (
-                <TouchableOpacity key={item.id} onPress={() => toggleExpand(item.id)}>
-                    <View style={[styles.row, { backgroundColor: index % 2 === 0 ? '#ffffff' : '#f0f4f7' }]}>
-                        <Text style={styles.cell}>{item.Name}</Text>
-                        <Text style={[styles.cell, { flex: 0.6 }]}>{item.Quantity}</Text>
-                        <Text style={styles.cell}>{item.Store || '-'}</Text>
-                        <Text style={styles.cell}>{item.Filter}</Text>
-                    </View>
-                    {expandedIndex === item.id && (
-                        <View style={styles.expandedRow}>
-                            <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 30 }}>
-                                <TouchableOpacity onPress={() => { setSelectedItemInfo(item); setInfoModalVisible(true); }} style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                    <Ionicons name="information-circle-outline" size={20} />
-                                    <Text style={styles.expandedText}>Info</Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity onPress={() => {
-                                    if (item.Quantity === 1) {
-                                        showToast(`${item.Name} añadido a la lista de la compra.`);
-                                    }
-                                    decreaseQuantity(item.id)
-                                }}
-                                    style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                    <Ionicons name="remove-circle-outline" size={20} />
-                                    <Text style={styles.expandedText}>Restar</Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity onPress={() => increaseQuantity(item.id)} style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                    <Ionicons name="add-circle-outline" size={20} />
-                                    <Text style={styles.expandedText}>Añadir</Text>
-                                </TouchableOpacity>
-                            </View>
-                            <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 40, marginTop: 12 }}>
-                                <TouchableOpacity onPress={() => { addItemToShoppingList(item.id); showToast(`${item.Name} añadido a la compra`); }} style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                    <Ionicons name="cart-outline" size={20} />
-                                    <Text style={styles.expandedText}>Añadir a la compra</Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity onPress={() => deleteItem(item.id)} style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                    <Ionicons name="trash-outline" size={20} />
-                                    <Text style={styles.expandedText}>Eliminar</Text>
-                                </TouchableOpacity>
-                            </View>
+            {visibleItems.map((item, index) => {
+                const isLast = index == visibleItems.length - 1;
+                return (
+                    <TouchableOpacity key={item.id} onPress={() => toggleExpand(item.id)}>
+                        <View style={[styles.row, { backgroundColor: index % 2 === 0 ? '#ffffff' : '#f0f4f7' }, isLast && { borderBottomLeftRadius: 8, borderBottomRightRadius: 8 }]}>
+                            <Text style={styles.cell}>{item.Name}</Text>
+                            <Text style={[styles.cell, { flex: 0.6 }]}>{item.Quantity}</Text>
+                            <Text style={styles.cell}>{item.Store || '-'}</Text>
+                            <Text style={styles.cell}>{item.Filter}</Text>
                         </View>
-                    )}
-                </TouchableOpacity>
-            ))}
+                        {expandedIndex === item.id && (
+                            <View style={styles.expandedRow}>
+                                <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 30 }}>
+                                    <TouchableOpacity onPress={() => { setSelectedItemInfo(item); setInfoModalVisible(true); }} style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                        <Ionicons name="information-circle-outline" size={20} />
+                                        <Text style={styles.expandedText}>Info</Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity onPress={() => {
+                                        if (item.Quantity === 1) {
+                                            showToast(`${item.Name} añadido a la lista de la compra.`);
+                                        }
+                                        decreaseQuantity(item.id)
+                                    }}
+                                        style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                        <Ionicons name="remove-circle-outline" size={20} />
+                                        <Text style={styles.expandedText}>Restar</Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity onPress={() => increaseQuantity(item.id)} style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                        <Ionicons name="add-circle-outline" size={20} />
+                                        <Text style={styles.expandedText}>Añadir</Text>
+                                    </TouchableOpacity>
+                                </View>
+                                <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 40, marginTop: 12 }}>
+                                    <TouchableOpacity onPress={() => { addItemToShoppingList(item.id); showToast(`${item.Name} añadido a la compra`); }} style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                        <Ionicons name="cart-outline" size={20} />
+                                        <Text style={styles.expandedText}>Añadir a la compra</Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity onPress={() => deleteItem(item.id)} style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                        <Ionicons name="trash-outline" size={20} />
+                                        <Text style={styles.expandedText}>Eliminar</Text>
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
+                        )}
+                    </TouchableOpacity>
+                );
+            })}
 
             <Modal visible={infoModalVisible} transparent={true} animationType="fade">
                 <View style={styles.modalOverlay}>
