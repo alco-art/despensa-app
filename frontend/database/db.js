@@ -19,7 +19,8 @@ export const initDatabase = () => {
             fiber REAL,
             salt REAL,
             inShoppingList INTEGER DEFAULT 0,
-            shoppingQuantity INTEGER DEFAULT 1
+            shoppingQuantity INTEGER DEFAULT 1,
+            photo TEXT
         );
     `);
 
@@ -47,7 +48,8 @@ export const initDatabase = () => {
             quantity INTEGER DEFAULT 1,
             weight REAL,
             inShoppingList INTEGER DEFAULT 0,
-            deleted INTEGER DEFAULT 0
+            deleted INTEGER DEFAULT 0,
+            photo TEXT
         );
     `);
 }

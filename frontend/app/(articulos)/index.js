@@ -80,6 +80,15 @@ const styles = StyleSheet.create({
     },
     expandedText: {
         fontSize: 13
+    },
+    emptyRow: {
+        padding: 10,
+        alignItems: 'center'
+    },
+    emptyText: {
+        color: '#999',
+        fontSize: 14,
+        fontStyle: 'italic'
     }
 });
 
@@ -235,6 +244,12 @@ export default function Household() {
                     </TouchableOpacity>
                 );
             })}
+
+            {visibleItems.length === 0 && (
+                <View style={styles.emptyRow}>
+                    <Text style={styles.emptyText}>No hay alimentos guardados aquí todavía.</Text>
+                </View>
+            )}
 
             <Modal visible={infoModalVisible} transparent={true} animationType="fade">
                 <View style={styles.modalOverlay}>

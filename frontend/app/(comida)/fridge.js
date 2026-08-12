@@ -103,6 +103,15 @@ const styles = StyleSheet.create({
         marginTop: 8,
         borderWidth: 1,
         borderColor: '#999'
+    },
+    emptyRow: {
+        padding: 10,
+        alignItems: 'center'
+    },
+    emptyText: {
+        color: '#999',
+        fontSize: 14,
+        fontStyle: 'italic'
     }
 });
 
@@ -287,6 +296,12 @@ export default function Fridge() {
                         )
                     )
                 })}
+
+                {visibleLots.length === 0 && (
+                    <View style={styles.emptyRow}>
+                        <Text style={styles.emptyText}>No hay alimentos guardados aquí todavía.</Text>
+                    </View>
+                )}
 
                 <Modal visible={infoModalVisible} transparent={true} animationType="fade">
                     <View style={styles.modalOverlay}>

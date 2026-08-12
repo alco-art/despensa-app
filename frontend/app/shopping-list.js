@@ -132,6 +132,15 @@ const styles = StyleSheet.create({
         borderTopWidth: 1,
         borderTopColor: '#ddd',
         backgroundColor: '#ffffff'
+    },
+    emptyRow: {
+        padding: 10,
+        alignItems: 'center'
+    },
+    emptyText: {
+        color: '#999',
+        fontSize: 14,
+        fontStyle: 'italic'
     }
 });
 
@@ -231,6 +240,10 @@ export default function ShoppingList() {
     };
 
     const startShopping = () => {
+        if (allItemsByFilter.length === 0) {
+            showToast('No tienes elementos por comprar.');
+            return;
+        }
         setExpandedKey(null);
         setActiveStore(null);
         setShoppingMode(true);
@@ -338,6 +351,12 @@ export default function ShoppingList() {
                                 </TouchableOpacity>
                             );
                         })}
+
+                        {tableItems.length === 0 && (
+                            <View style={styles.emptyRow}>
+                                <Text style={styles.emptyText}>No hay nada en la lista de la compra todavía.</Text>
+                            </View>
+                        )}
                     </View>
                 )}
 
