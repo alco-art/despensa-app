@@ -224,7 +224,7 @@ export default function Fridge() {
                     return (
                         (
                             <TouchableOpacity key={index} onPress={() => toggleExpand(lot.id)}>
-                                <View style={[styles.row, { backgroundColor: index % 2 === 0 ? '#ffffff' : '#f0f4f7' }, isLast && { borderBottomLeftRadius: 8, borderBottomRightRadius: 8}]}>
+                                <View style={[styles.row, { backgroundColor: index % 2 === 0 ? '#ffffff' : '#f0f4f7' }, isLast && { borderBottomLeftRadius: 8, borderBottomRightRadius: 8 }]}>
                                     <Text style={[styles.cell]}>{foodItem.Food}</Text>
                                     <Text style={[styles.cell]}>{lot.Servings}</Text>
                                     <Text style={[styles.cell, { flex: 1.2 }]}>{formatDate(lot.ExpDate)}</Text>
@@ -273,7 +273,10 @@ export default function Fridge() {
                                                 <Ionicons name="cart-outline" size={20} />
                                                 <Text style={styles.expandedText}>Añadir a la compra</Text>
                                             </TouchableOpacity>
-                                            <TouchableOpacity onPress={() => deleteFood(lot.id)} style={{ flexDirection: 'row', alignItems: 'center', marginTop: 12 }}>
+                                            <TouchableOpacity onPress={() => {
+                                                showToast(`${foodItem.Food} eliminado.`);
+                                                deleteFood(lot.id);
+                                            }} style={{ flexDirection: 'row', alignItems: 'center', marginTop: 12 }}>
                                                 <Ionicons name="trash-outline" size={20} />
                                                 <Text style={styles.expandedText}>Eliminar</Text>
                                             </TouchableOpacity>

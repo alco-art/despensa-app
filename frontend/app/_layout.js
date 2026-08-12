@@ -27,7 +27,6 @@ export default function RootLayout() {
                             <Drawer.Screen name="shopping-list" options={{ title: 'Lista de la compra' }} />
                             <Drawer.Screen name="search" options={{ title: 'Buscar '}} />
                             <Drawer.Screen name="review-purchase" options={{ drawerItemStyle: { display: 'none' }}} />
-                            <Drawer.Screen name="more" options={{ drawerItemStyle: { display: 'none' }}} />
                         </Drawer>
                     </HouseholdProvider>
                 </FoodProvider>

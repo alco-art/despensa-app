@@ -7,6 +7,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import ReviewContext from "../context/ReviewContext";
 import FoodContext from "../context/FoodContext";
 import HouseholdContext from "../context/HouseholdContext";
+import Toast from "../components/Toast";
 
 const styles = StyleSheet.create({
     container: {
@@ -85,6 +86,8 @@ export default function ReviewPurchase() {
     const [editData, setEditData] = useState({});
     const [locationOpenKey, setLocationOpenKey] = useState(null);
     const [datePickerKey, setDatePickerKey] = useState(null);
+    const [toastVisible, setToastVisible] = useState(false);
+    const [toastMessage, setToastMessage] = useState('');
     const insets = useSafeAreaInsets();
     const router = useRouter();
 
@@ -127,6 +130,11 @@ export default function ReviewPurchase() {
         if (current <= 1) return;
         updateField(key, 'quantity', String(current - 1));
     };
+    
+    const showToast = (message) => {
+        setToastMessage(message);
+        setToastVisible(true);
+    };
 
     const handleConfirmPurchase = async () => {
         for (const item of reviewItems) {
@@ -139,9 +147,13 @@ export default function ReviewPurchase() {
                 await confirmPurchaseItem(item.id, data.quantity);
             };
         };
+        
+        showToast('Artículos guardados correctamente.');
 
-        setReviewItems([]);
-        router.back();
+        setTimeout(() => {
+            setReviewItems([]);
+            router.back();
+        }, 1200);
     };
 
     return (
@@ -151,7 +163,7 @@ export default function ReviewPurchase() {
             <SafeAreaView style={{ flex: 1 }} edges={[]}>
                 <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
                     <ScrollView contentContainerStyle={[
-                        styles.container, 
+                        styles.container,
                         { paddingBottom: insets.bottom > 0 ? insets.bottom + 20 : 30 }
                     ]}>
 
@@ -234,6 +246,7 @@ export default function ReviewPurchase() {
                     </ScrollView>
                 </KeyboardAvoidingView>
             </SafeAreaView>
+            <Toast message={toastMessage} visible={toastVisible} />
         </>
     );
 }

@@ -6,6 +6,7 @@ import { useRouter } from 'expo-router';
 import FoodContext from '../context/FoodContext';
 import HouseholdContext from '../context/HouseholdContext';
 import ReviewContext from '../context/ReviewContext';
+import Toast from '../components/Toast';
 
 const styles = StyleSheet.create({
     fixedHeader: {
@@ -14,7 +15,8 @@ const styles = StyleSheet.create({
         backgroundColor: '#f2f2f2'
     },
     container: {
-        paddingHorizontal: 4
+        paddingHorizontal: 4,
+        paddingBottom: 16
     },
     scrollView: {
         flex: 1
@@ -25,8 +27,9 @@ const styles = StyleSheet.create({
         backgroundColor: '#4a5a6a',
         color: '#ffffff',
         padding: 8,
-        marginTop: 4,
-        borderRadius: 4
+        marginTop: 10,
+        borderTopLeftRadius: 8,
+        borderTopRightRadius: 8
     },
     row: {
         flexDirection: 'row',
@@ -55,7 +58,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#4a5a6a',
         padding: 12,
         borderRadius: 6,
-        marginBottom: 12
+        marginBottom: 60
     },
     cancelShopButton: {
         flex: 1,
@@ -75,7 +78,9 @@ const styles = StyleSheet.create({
     headerRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#4a5a6a'
+        backgroundColor: '#4a5a6a',
+        borderTopLeftRadius: 8,
+        borderTopRightRadius: 8
     },
     subHeaderRow: {
         flexDirection: 'row',
@@ -118,6 +123,15 @@ const styles = StyleSheet.create({
         borderRadius: 6,
         marginBottom: 8,
         gap: 8
+    },
+    buttonBar: {
+        flexDirection: 'row',
+        gap: 12,
+        padding: 12,
+        paddingBottom: 60,
+        borderTopWidth: 1,
+        borderTopColor: '#ddd',
+        backgroundColor: '#ffffff'
     }
 });
 
@@ -130,12 +144,15 @@ export default function ShoppingList() {
     const [activeStore, setActiveStore] = useState(null);
     const [storeFilterOpen, setStoreFilterOpen] = useState(false);
     const [expandedKey, setExpandedKey] = useState(null);
+    const [toastVisible, setToastVisible] = useState(false);
+    const [toastMessage, setToastMessage] = useState('');
 
-    useFocusEffect (
+    useFocusEffect(
         useCallback(() => {
             setExpandedKey(null);
             setShoppingMode(false);
             setCheckedItems([]);
+            setActiveStore(null);
         }, [])
     );
 
@@ -215,6 +232,7 @@ export default function ShoppingList() {
 
     const startShopping = () => {
         setExpandedKey(null);
+        setActiveStore(null);
         setShoppingMode(true);
     };
 
@@ -228,10 +246,13 @@ export default function ShoppingList() {
     const finishShopping = () => {
         const selectedItems = allItemsByFilter.filter(item => checkedItems.includes(item.key));
         setReviewItems(selectedItems);
-        setShoppingMode(false);
-        setCheckedItems([]);
-        setExpandedKey(null);
         router.push('../review-purchase');
+    };
+
+    const showToast = (message) => {
+        setToastMessage(message);
+        setToastVisible(true);
+        setTimeout(() => setToastVisible(false), 2000);
     };
 
     return (
@@ -239,24 +260,6 @@ export default function ShoppingList() {
 
             {/* ZONA FIJA (fuera del ScrollView) */}
             <View style={styles.fixedHeader}>
-                {!shoppingMode && (
-                    <TouchableOpacity style={styles.shopButton} onPress={startShopping}>
-                        <Ionicons name="cart-outline" size={20} color={"#fff"} />
-                        <Text style={{ color: '#fff', marginLeft: 8 }}>Ir a comprar</Text>
-                    </TouchableOpacity>
-                )}
-
-                {shoppingMode && (
-                    <View style={{ flexDirection: 'row', gap: 12, marginBottom: 12 }}>
-                        <TouchableOpacity style={styles.cancelShopButton} onPress={cancelShopping}>
-                            <Text>Cancelar</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={styles.finishShopButton} onPress={finishShopping}>
-                            <Text style={{ color: '#fff' }}>Terminar la compra</Text>
-                        </TouchableOpacity>
-                    </View>
-                )}
-
                 {shoppingMode && uniqueStores.length > 0 && (
                     <View style={styles.fieldGroup}>
                         <TouchableOpacity onPress={() => setStoreFilterOpen(!storeFilterOpen)} style={styles.filterButton}>
@@ -265,11 +268,11 @@ export default function ShoppingList() {
                         </TouchableOpacity>
                         {storeFilterOpen && (
                             <View style={styles.filterOptions}>
-                                <TouchableOpacity onPress={() => { setActiveStore(null); setStoreFilterOpen(false); }}>
+                                <TouchableOpacity onPress={() => { setActiveStore(null); setStoreFilterOpen(false); setCheckedItems([]); }}>
                                     <Text>Todas</Text>
                                 </TouchableOpacity>
                                 {uniqueStores.map((store, i) => (
-                                    <TouchableOpacity key={i} onPress={() => { setActiveStore(store); setStoreFilterOpen(false); }}>
+                                    <TouchableOpacity key={i} onPress={() => { setActiveStore(store); setStoreFilterOpen(false); setCheckedItems([]); }}>
                                         <Text>{store}</Text>
                                     </TouchableOpacity>
                                 ))}
@@ -292,62 +295,78 @@ export default function ShoppingList() {
                                 {getStoreSortIcon() && <Ionicons name={getStoreSortIcon()} size={14} color="#ffffff" />}
                             </TouchableOpacity>
                         </View>
-                        {tableItems.map((item, index) => (
-                            <TouchableOpacity key={item.key} onPress={() => toggleExpand(item.key)}>
-                                <View style={[styles.row, { backgroundColor: index % 2 === 0 ? '#ffffff' : '#f0f4f7' }]}>
-                                    <Text style={styles.quantityCell}>{item.quantity}</Text>
-                                    <Text style={styles.cell}>{item.name}</Text>
-                                    <Text style={styles.cell}>{item.brand}</Text>
-                                    <Text style={styles.cell}>{item.store || '-'}</Text>
-                                </View>
-                                {expandedKey === item.key && (
-                                    <View style={styles.expandedRowShopping}>
-                                        <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 30 }}>
+                        {tableItems.map((item, index) => {
+                            const isLast = index == tableItems.length - 1;
+                            return (
+                                <TouchableOpacity key={item.key} onPress={() => toggleExpand(item.key)}>
+                                    <View style={[
+                                        styles.row,
+                                        { backgroundColor: index % 2 === 0 ? '#ffffff' : '#f0f4f7' }, isLast && { borderBottomLeftRadius: 8, borderBottomRightRadius: 8 }]}>
+                                        <Text style={styles.quantityCell}>{item.quantity}</Text>
+                                        <Text style={styles.cell}>{item.name}</Text>
+                                        <Text style={styles.cell}>{item.brand}</Text>
+                                        <Text style={styles.cell}>{item.store || '-'}</Text>
+                                    </View>
+                                    {expandedKey === item.key && (
+                                        <View style={styles.expandedRowShopping}>
+                                            <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 30 }}>
+                                                <TouchableOpacity onPress={() => {
+                                                    if (item.type === 'food') decreaseShoppingQuantity(item.id);
+                                                    else decreaseQuantity(item.id);
+                                                }} style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                                    <Ionicons name="remove-circle-outline" size={20} />
+                                                    <Text>Restar</Text>
+                                                </TouchableOpacity>
+                                                <TouchableOpacity onPress={() => {
+                                                    if (item.type === 'food') increaseShoppingQuantity(item.id);
+                                                    else increaseQuantity(item.id);
+                                                }} style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                                    <Ionicons name="add-circle-outline" size={20} />
+                                                    <Text>Añadir</Text>
+                                                </TouchableOpacity>
+                                            </View>
                                             <TouchableOpacity onPress={() => {
-                                                if (item.type === 'food') decreaseShoppingQuantity(item.id);
-                                                else decreaseQuantity(item.id);
-                                            }} style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                                <Ionicons name="remove-circle-outline" size={20} />
-                                                <Text>Restar</Text>
-                                            </TouchableOpacity>
-                                            <TouchableOpacity onPress={() => {
-                                                if (item.type === 'food') increaseShoppingQuantity(item.id);
-                                                else increaseQuantity(item.id);
-                                            }} style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                                <Ionicons name="add-circle-outline" size={20} />
-                                                <Text>Añadir</Text>
+                                                showToast(`${item.name} eliminado de la lista.`);
+                                                if (item.type === 'food') removeFromShoppingList(item.id);
+                                                else removeItemFromShoppingList(item.id);
+                                            }} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: 12 }}>
+                                                <Ionicons name="trash-outline" size={20} />
+                                                <Text>Eliminar de la lista</Text>
                                             </TouchableOpacity>
                                         </View>
-                                        <TouchableOpacity onPress={() => {
-                                            if (item.type === 'food') removeFromShoppingList(item.id);
-                                            else removeItemFromShoppingList(item.id);
-                                        }} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: 12 }}>
-                                            <Ionicons name="trash-outline" size={20} />
-                                            <Text>Eliminar de la lista</Text>
-                                        </TouchableOpacity>
-                                    </View>
-                                )}
-                            </TouchableOpacity>
-                        ))}
+                                    )}
+                                </TouchableOpacity>
+                            );
+                        })}
                     </View>
                 )}
 
-                {shoppingMode && sections.map(section => (
-                    <View key={section}>
-                        <Text style={styles.sectionTitle}>{section}</Text>
-                        <View style={styles.subHeaderRow}>
-                            <View style={styles.checkboxCell} />
-                            <Text style={[styles.quantityCell, styles.headerText]}>Cant.</Text>
-                            <Text style={[styles.cell, styles.headerText]}>Nombre</Text>
-                            <Text style={[styles.cell, styles.headerText]}>Marca (Tienda)</Text>
-                        </View>
-                        {allItemsByFilter
-                            .filter(item => item.filter === section)
-                            .filter(item => !activeStore || item.store === activeStore)
-                            .map((item, index) => {
+                {shoppingMode && sections.map(section => {
+                    const sectionItems = allItemsByFilter
+                        .filter(item => item.filter === section)
+                        .filter(item => !activeStore || item.store === activeStore);
+
+                    if (sectionItems.length === 0) {
+                        return null;
+                    }
+
+                    return (
+                        <View key={section}>
+                            <Text style={styles.sectionTitle}>{section}</Text>
+                            <View style={styles.subHeaderRow}>
+                                <View style={styles.checkboxCell} />
+                                <Text style={[styles.quantityCell, styles.headerText]}>Cant.</Text>
+                                <Text style={[styles.cell, styles.headerText]}>Nombre</Text>
+                                <Text style={[styles.cell, styles.headerText]}>Marca (Tienda)</Text>
+                            </View>
+                            {sectionItems.map((item, index) => {
                                 const isChecked = checkedItems.includes(item.key);
+                                const isLast = index == sectionItems.length - 1;
                                 return (
-                                    <TouchableOpacity key={item.key} style={[styles.row, { backgroundColor: index % 2 === 0 ? '#ffffff' : '#f0f4f7' }]} onPress={() => toggleChecked(item.key)}>
+                                    <TouchableOpacity key={item.key} style={[
+                                        styles.row,
+                                        { backgroundColor: index % 2 === 0 ? '#ffffff' : '#f0f4f7' }, isLast && { borderBottomLeftRadius: 8, borderBottomRightRadius: 8 }]}
+                                        onPress={() => toggleChecked(item.key)}>
                                         <View style={styles.checkboxCell}>
                                             <Ionicons
                                                 name={isChecked ? "checkbox" : "square-outline"}
@@ -363,9 +382,31 @@ export default function ShoppingList() {
                                     </TouchableOpacity>
                                 );
                             })}
-                    </View>
-                ))}
+                        </View>
+                    );
+                })}
             </ScrollView>
-        </View>
+
+            {!shoppingMode && (
+                <View style={{ padding: 12 }}>
+                    <TouchableOpacity style={styles.shopButton} onPress={startShopping}>
+                        <Ionicons name="cart-outline" size={20} color={"#fff"} />
+                        <Text style={{ color: '#fff', marginLeft: 8 }}>Ir a comprar</Text>
+                    </TouchableOpacity>
+                </View>
+            )}
+
+            {shoppingMode && (
+                <View style={styles.buttonBar}>
+                    <TouchableOpacity style={styles.cancelShopButton} onPress={cancelShopping}>
+                        <Text>Cancelar</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.finishShopButton} onPress={finishShopping}>
+                        <Text style={{ color: '#fff' }}>Terminar la compra</Text>
+                    </TouchableOpacity>
+                </View>
+            )}
+            <Toast message={toastMessage} visible={toastVisible} />
+        </View >
     );
 }

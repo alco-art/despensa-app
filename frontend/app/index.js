@@ -7,8 +7,8 @@ import HouseholdContext from '../context/HouseholdContext';
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
-        padding: 16
+        padding: 16,
+        paddingBottom: 60
     },
     greeting: {
         fontSize: 22,
@@ -107,7 +107,7 @@ export default function Home() {
 
     // --- ALIMENTOS QUE CADUCAN PRONTO ---
     const lotsWithDays = lots
-        .filter(lot => !lot.Deleted)
+        .filter(lot => !lot.Deleted && lot.Location !== 'Freezer')
         .map(lot => {
             const days = getDaysUntilExpiry(lot.ExpDate);
             return { ...lot, daysLeft: days };

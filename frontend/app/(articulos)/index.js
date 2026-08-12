@@ -222,7 +222,10 @@ export default function Household() {
                                         <Ionicons name="cart-outline" size={20} />
                                         <Text style={styles.expandedText}>Añadir a la compra</Text>
                                     </TouchableOpacity>
-                                    <TouchableOpacity onPress={() => deleteItem(item.id)} style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                    <TouchableOpacity onPress={() => {
+                                        showToast(`${item.Name} eliminado.`);
+                                        deleteItem(item.id);
+                                    }} style={{ flexDirection: 'row', alignItems: 'center' }}>
                                         <Ionicons name="trash-outline" size={20} />
                                         <Text style={styles.expandedText}>Eliminar</Text>
                                     </TouchableOpacity>
