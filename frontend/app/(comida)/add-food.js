@@ -1,8 +1,9 @@
 import { useState, useContext, useEffect } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, ScrollView, Platform, Alert, Keyboard } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, ScrollView, Platform, Alert, Keyboard, Image } from "react-native";
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
+import * as ImagePicker from 'expo-image-picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import FoodContext from "../../context/FoodContext";
 
@@ -123,6 +124,7 @@ export default function AddFood() {
         Fiber: '',
         Salt: ''
     });
+    const [photo, setPhoto] = useState(null);
     const [locationOpen, setLocationOpen] = useState(false);
     const locationOptions = ["Fridge", "Freezer", "Pantry"];
     const insets = useSafeAreaInsets();
@@ -136,6 +138,23 @@ export default function AddFood() {
         Fridge: "Nevera",
         Freezer: "Congelador",
         Pantry: "Despensa"
+    }
+
+    const pickImage = async () => {
+        const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (!permission.granted) {
+            Alert.alert('Permiso necesario.', 'Necesitamos acceso a tus fotos para añadir una imagen.');
+            return;
+        }
+
+        const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ['images'],
+            quality: 0.5
+        });
+
+        if (!result.canceled) {
+            setPhoto(result.assets[0].uri);
+        }
     }
 
     useEffect(() => {
@@ -416,6 +435,17 @@ export default function AddFood() {
                                     style={styles.input}
                                     keyboardType="numeric"
                                 />
+                            </View>
+
+                            <View style={styles.fieldGroup}>
+                                <Text style={styles.label}>Foto (opcional)</Text>
+                                <TouchableOpacity onPress={pickImage} style={styles.filterButton}>
+                                    <Text>{photo ? 'Cambiar foto' : 'Seleccionar foto'}</Text>
+                                    <Ionicons name="camera-outline" size={16} />
+                                </TouchableOpacity>
+                                {photo && (
+                                    <Image source={{ uri: photo }} style={{ width: 100, height: 100, borderRadius: 8, marginTop: 8 }} />
+                                )}
                             </View>
                         </View>
                     </ScrollView>

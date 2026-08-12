@@ -20,6 +20,7 @@ export function HouseholdProvider({ children }) {
             Filter: i.filter,
             Quantity: i.quantity,
             Weight: i.weight,
+            Photo: i.photo,
             InShoppingList: i.inShoppingList === 1,
             Deleted: i.deleted === 1
         }));
@@ -28,14 +29,14 @@ export function HouseholdProvider({ children }) {
     };
 
     const addItem = async (formData) => {
-        const { name, brand, store, filter, quantity, weight } = formData;
+        const { name, brand, store, filter, quantity, weight, photo } = formData;
 
         const totalQuantity = Number(quantity) || 1;
 
         await db.runAsync(
-            `INSERT INTO Item (name, brand, store, filter, quantity, weight)
-            VALUES (?, ?, ?, ?, ?, ?)`,
-            [name, brand, store, filter, totalQuantity, weight ? Number(weight) : null]
+            `INSERT INTO Item (name, brand, store, filter, quantity, weight, photo)
+            VALUES (?, ?, ?, ?, ?, ?, ?)`,
+            [name, brand, store, filter, totalQuantity, weight ? Number(weight) : null, photo || null]
         );
 
         await loadItems();

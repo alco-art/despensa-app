@@ -31,6 +31,7 @@ export function FoodProvider({ children }) {
                 Fiber: f.fiber,
                 Salt: f.salt
             },
+            Photo: f.photo,
             InShoppingList: f.inShoppingList === 1,
             ShoppingQuantity: f.shoppingQuantity
         }));
@@ -152,7 +153,7 @@ export function FoodProvider({ children }) {
     };
 
     const addFood = async (formData) => {
-        const { name, brand, store, filter, defaultLocation, weightPerUnit, quantity, expDate, servingsPerUnit, nutritionalInfo } = formData;
+        const { name, brand, store, filter, defaultLocation, weightPerUnit, quantity, expDate, servingsPerUnit, nutritionalInfo, photo } = formData;
 
         //Comprobar si el alimento ya existe
         const existing = await db.getAllAsync(
@@ -167,9 +168,9 @@ export function FoodProvider({ children }) {
         }
         else {
             const result = await db.runAsync(
-                `INSERT INTO Food (name, brand, store, filter, defaultLocation, weightPerUnit, calories, carbs, protein, fat, fiber, salt)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?)`,
-                [name, brand, store, filter || "Sin categoría", defaultLocation, Number(weightPerUnit), Number(nutritionalInfo.Calories), Number(nutritionalInfo.Carbs), Number(nutritionalInfo.Protein), Number(nutritionalInfo.Fat), Number(nutritionalInfo.Fiber), Number(nutritionalInfo.Salt)]
+                `INSERT INTO Food (name, brand, store, filter, defaultLocation, weightPerUnit, calories, carbs, protein, fat, fiber, salt, photo)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                [name, brand, store, filter || "Sin categoría", defaultLocation, Number(weightPerUnit), Number(nutritionalInfo.Calories), Number(nutritionalInfo.Carbs), Number(nutritionalInfo.Protein), Number(nutritionalInfo.Fat), Number(nutritionalInfo.Fiber), Number(nutritionalInfo.Salt), photo || null]
             );
 
             foodId = result.lastInsertRowId;
