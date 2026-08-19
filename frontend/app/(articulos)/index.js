@@ -1,5 +1,6 @@
-import { useState, useContext, useCallback } from "react";
+import { useState, useContext, useCallback, useEffect } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Modal, Image } from "react-native";
+import { useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import HouseholdContext from "../../context/HouseholdContext";
@@ -128,14 +129,23 @@ export default function Household() {
     const [imageFullscreenVisible, setImageFullscreenVisible] = useState(false);
     const [toastVisible, setToastVisible] = useState(false);
     const [toastMessage, setToastMessage] = useState('');
+    const { highlightItem } = useLocalSearchParams();
 
     const { items, decreaseQuantity, increaseQuantity, deleteItem, addItemToShoppingList } = useContext(HouseholdContext);
 
     useFocusEffect(
         useCallback(() => {
-            setExpandedIndex(null);
-        }, [])
+            if (!highlightItem) {
+                setExpandedIndex(null);
+            }
+        }, [highlightItem])
     );
+
+    useEffect(() => {
+        if (highlightItem) {
+            setExpandedIndex(Number(highlightItem));
+        }
+    }, [highlightItem]);
 
     const showToast = (message) => {
         setToastMessage(message);

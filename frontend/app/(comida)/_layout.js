@@ -1,15 +1,18 @@
-import { Tabs, useRouter } from 'expo-router';
+import { Tabs, useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from 'expo-router';
 import { useCallback } from 'react';
 
 export default function Layout() {
     const router = useRouter();
+    const { highlightLot } = useLocalSearchParams();
 
     useFocusEffect(
         useCallback(() => {
-            router.replace('/(comida)/fridge')
-        }, [])
+            if (!highlightLot) {
+                router.replace('/(comida)/fridge');
+            }
+        }, [highlightLot])
     );
 
     return (

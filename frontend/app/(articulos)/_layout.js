@@ -1,15 +1,18 @@
-import { Tabs, useRouter } from "expo-router";
+import { Tabs, useRouter, useLocalSearchParams } from "expo-router";
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from 'expo-router';
 import { useCallback } from 'react';
 
 export default function HouseholdLayout() {
     const router = useRouter();
+    const { highlightItem } = useLocalSearchParams();
 
     useFocusEffect(
         useCallback(() => {
-            router.replace('/(articulos)')
-        }, [])
+            if (!highlightItem) {
+                router.replace('/(articulos)');
+            }
+        }, [highlightItem])
     );
 
     return (

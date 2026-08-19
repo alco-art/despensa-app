@@ -1,5 +1,6 @@
-import { useState, useContext, useCallback } from 'react';
+import { useState, useContext, useCallback, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Modal, Image } from 'react-native';
+import { useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import FoodContext from '../../context/FoodContext';
@@ -158,13 +159,22 @@ export default function Freezer() {
     const [imageFullscreenVisible, setImageFullscreenVisible] = useState(false);
     const [toastVisible, setToastVisible] = useState(false);
     const [toastMessage, setToastMessage] = useState('');
+    const { highlightLot } = useLocalSearchParams();
     const { food, setFood, lots, setLots, decreaseServing, increaseServing, deleteFood, moveLot, addToShoppingList } = useContext(FoodContext);
 
     useFocusEffect(
         useCallback(() => {
-            setExpandedIndex(null);
-        }, [])
+            if (!highlightLot) {
+                setExpandedIndex(null);
+            }
+        }, [highlightLot])
     );
+
+    useEffect(() => {
+        if (highlightLot) {
+            setExpandedIndex(Number(highlightLot));
+        }
+    }, [highlightLot]);
 
     const sortTable = (column) => {
         let newDirection = 'asc';

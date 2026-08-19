@@ -33,7 +33,7 @@ export default function RootLayout() {
                 <FoodProvider>
                     <HouseholdProvider>
                         <Drawer
-                            screenOptions={{ headerShown: true }}
+                            screenOptions={{ headerShown: true, swipeEnabled: true, swipeEdgeWidth: 140 }}
                             initialRouteName='index'
                             drawerContent={(props) => <CustomDrawerContent {...props} />}
                         >
