@@ -1,7 +1,8 @@
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { useContext } from 'react';
+import { useContext, useRef, useCallback } from 'react';
+import { useFocusEffect } from 'expo-router';
 import FoodContext from '../context/FoodContext';
 import HouseholdContext from '../context/HouseholdContext';
 
@@ -89,6 +90,7 @@ const styles = StyleSheet.create({
 
 export default function Home() {
     const router = useRouter();
+    const scrollViewRef = useRef(null);
     const { food, lots } = useContext(FoodContext);
     const { items } = useContext(HouseholdContext);
 
@@ -117,8 +119,15 @@ export default function Home() {
         .filter(lot => lot.daysLeft <= 3)
         .sort((a, b) => a.daysLeft - b.daysLeft);
 
+    // --- RECARGO DE PÁGINA ---
+    useFocusEffect(
+        useCallback(() => {
+            scrollViewRef.current?.scrollTo({ y: 0, animated: false });
+        }, [])
+    );
+
     return (
-        <ScrollView contentContainerStyle={styles.container}>
+        <ScrollView ref={scrollViewRef} contentContainerStyle={styles.container}>
             <Text style={styles.greeting}>MiDespensa</Text>
             <ExpiringSection expiringLots={expiringLots} food={food} />
             <QuickAccessSection router={router} />
