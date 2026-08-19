@@ -138,7 +138,7 @@ export default function Search() {
                 )}
             </View>
 
-            <ScrollView indicatorStyle="black">
+            <ScrollView persistentScrollbar={true} indicatorStyle="black">
                 <View style={styles.headerRow}>
                     <Text style={[styles.availabilityCell, styles.headerText]}>Stock</Text>
                     <Text style={[styles.cell, styles.headerText]}>Nombre</Text>

@@ -1,8 +1,16 @@
 import { Tabs, useRouter } from "expo-router";
 import { Ionicons } from '@expo/vector-icons';
+import { useFocusEffect } from 'expo-router';
+import { useCallback } from 'react';
 
 export default function HouseholdLayout() {
     const router = useRouter();
+
+    useFocusEffect(
+        useCallback(() => {
+            router.replace('/(articulos)')
+        }, [])
+    );
 
     return (
         <Tabs screenOptions={{ headerShown: false }}>

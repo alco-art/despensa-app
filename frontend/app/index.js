@@ -23,18 +23,6 @@ const styles = StyleSheet.create({
         marginTop: 16,
         marginBottom: 8
     },
-    showMoreButton: {
-        flexDirection: 'row',
-        justifyContent: 'center',
-        alignItems: 'center',
-        gap: 4,
-        paddingVertical: 8
-    },
-    showMoreText: {
-        color: '#4a5a6a',
-        fontWeight: '600',
-        fontSize: 13
-    },
     cardGrid: {
         flexDirection: 'row',
         flexWrap: 'wrap',
@@ -68,13 +56,28 @@ const styles = StyleSheet.create({
         backgroundColor: '#fdecea',
         borderRadius: 8,
         padding: 10,
-        marginBottom: 8,
+        marginBottom: 4,
         gap: 8
     },
     alertText: {
         color: '#c0392b',
         fontSize: 14,
         flex: 1
+    },
+    showMoreButton: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        gap: 4,
+        paddingVertical: 8,
+        backgroundColor: '#4a5a6a',
+        borderRadius: 8,
+        marginTop: 2
+    },
+    showMoreText: {
+        color: '#ffffff',
+        fontWeight: '600',
+        fontSize: 13
     },
     summaryRow: {
         flexDirection: 'row',
@@ -173,7 +176,7 @@ function ExpiringSection({ expiringLots, food }) {
             {expiringLots.length > 5 && (
                 <TouchableOpacity onPress={() => setShowAll(!showAll)} style={styles.showMoreButton}>
                     <Text style={styles.showMoreText}>{showAll ? 'Mostrar menos' : `Mostrar ${expiringLots.length - 5} más`}</Text>
-                    <Ionicons name={showAll ? 'chevron-up' : 'chevron-down'} size={16} color="#4a5a6a" />
+                    <Ionicons name={showAll ? 'chevron-up' : 'chevron-down'} size={16} color="#ffffff" />
                 </TouchableOpacity>
             )}
         </View>
