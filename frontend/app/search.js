@@ -1,5 +1,6 @@
-import { useState, useContext } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
+import { useState, useContext, useCallback, useEffect } from 'react';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import FoodContext from '../context/FoodContext';
 import HouseholdContext from '../context/HouseholdContext';
@@ -10,18 +11,25 @@ const styles = StyleSheet.create({
         paddingHorizontal: 8,
         paddingTop: 8
     },
-    searchInput: {
+    searchWrapper: {
+        flexDirection: 'row',
+        alignItems: 'center',
         borderWidth: 1,
         borderColor: '#ccc',
         borderRadius: 6,
-        padding: 10,
         backgroundColor: '#fff',
-        marginBottom: 8
+        marginBottom: 8,
+        paddingHorizontal: 10
+    },
+    searchInput: {
+        flex: 1,
+        paddingVertical: 10
     },
     headerRow: {
         flexDirection: 'row',
         alignItems: 'center',
         backgroundColor: '#4a5a6a',
+        paddingHorizontal: 10,
         borderTopLeftRadius: 8,
         borderTopRightRadius: 8
     },
@@ -43,13 +51,22 @@ const styles = StyleSheet.create({
         fontWeight: 'bold'
     },
     availabilityCell: {
-        width: 40,
+        width: 44,
         alignItems: 'center'
     },
     dot: {
         width: 12,
         height: 12,
         borderRadius: 6
+    },
+    emptyRow: {
+        padding: 20,
+        alignItems: 'center'
+    },
+    emptyText: {
+        color: '#999',
+        fontSize: 14,
+        fontStyle: 'italyc'
     }
 });
 
@@ -57,6 +74,12 @@ export default function Search() {
     const { food, lots } = useContext(FoodContext);
     const { items } = useContext(HouseholdContext);
     const [query, setQuery] = useState('');
+
+    useFocusEffect(
+        useCallback(() => {
+            setQuery('');
+        }, [])
+    );
 
     // --- COMBINAR COMIDA Y ARTÍCULOS ---
     const foodResults = food.map(f => {
@@ -98,31 +121,48 @@ export default function Search() {
 
     return (
         <View style={styles.container}>
-            <TextInput
-                value={query}
-                onChangeText={setQuery}
-                placeholder="Buscar por nombre, marca o tienda"
-                placeholderTextColor="#999"
-                style={styles.searchInput}
-            />
+            <View style={styles.searchWrapper}>
+                <Ionicons name="search" size={18} color="#999" />
+                <TextInput
+                    value={query}
+                    onChangeText={setQuery}
+                    placeholder="Buscar por nombre, marca o tienda"
+                    placeholderTextColor="#999"
+                    style={styles.searchInput}
+                />
 
-            <View style={styles.headerRow}>
-                <Text style={[styles.availabilityCell, styles.headerText]}>Stock</Text>
-                <Text style={[styles.cell, styles.headerText]}>Nombre</Text>
-                <Text style={[styles.cell, styles.headerText]}>Marca</Text>
-                <Text style={[styles.cell, styles.headerText]}>Tienda</Text>
+                {query.length > 0 && (
+                    <TouchableOpacity onPress={() => setQuery('')}>
+                        <Ionicons name="close-circle" size={18} color="#999" />
+                    </TouchableOpacity>
+                )}
             </View>
 
-            {filteredResults.map((item, index) => (
-                <TouchableOpacity key={`${item.type}-${item.id}`} style={styles.row}>
-                    <View style={styles.availabilityCell}>
-                        <View style={[styles.dot, { backgroundColor: item.available ? '#2ecc71' : '#e74c3c' }]} />
+            <ScrollView indicatorStyle="black">
+                <View style={styles.headerRow}>
+                    <Text style={[styles.availabilityCell, styles.headerText]}>Stock</Text>
+                    <Text style={[styles.cell, styles.headerText]}>Nombre</Text>
+                    <Text style={[styles.cell, styles.headerText]}>Marca</Text>
+                    <Text style={[styles.cell, styles.headerText]}>Tienda</Text>
+                </View>
+
+                {filteredResults.map((item, index) => (
+                    <TouchableOpacity key={`${item.type}-${item.id}`} style={[styles.row, {backgroundColor: index % 2 === 0 ? '#ffffff' : '#f0f4f7' }]}>
+                        <View style={styles.availabilityCell}>
+                            <View style={[styles.dot, { backgroundColor: item.available ? '#2ecc71' : '#e74c3c' }]} />
+                        </View>
+                        <Text style={styles.cell}>{item.name}</Text>
+                        <Text style={styles.cell}>{item.brand}</Text>
+                        <Text style={styles.cell}>{item.store || '-'}</Text>
+                    </TouchableOpacity>
+                ))}
+
+                {filteredResults.length === 0 && (
+                    <View style={styles.emptyRow}>
+                        <Text style={styles.emptyText}>No se encontraron resultados.</Text>
                     </View>
-                    <Text style={styles.cell}>{item.name}</Text>
-                    <Text style={styles.cell}>{item.brand}</Text>
-                    <Text style={styles.cell}>{item.store || '-'}</Text>
-                </TouchableOpacity>
-            ))}
+                )}
+            </ScrollView>
         </View>
     );
 }

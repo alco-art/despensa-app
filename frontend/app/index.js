@@ -1,7 +1,7 @@
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { useContext, useRef, useCallback } from 'react';
+import { useContext, useRef, useCallback, useState } from 'react';
 import { useFocusEffect } from 'expo-router';
 import FoodContext from '../context/FoodContext';
 import HouseholdContext from '../context/HouseholdContext';
@@ -22,6 +22,18 @@ const styles = StyleSheet.create({
         fontWeight: '600',
         marginTop: 16,
         marginBottom: 8
+    },
+    showMoreButton: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        gap: 4,
+        paddingVertical: 8
+    },
+    showMoreText: {
+        color: '#4a5a6a',
+        fontWeight: '600',
+        fontSize: 13
     },
     cardGrid: {
         flexDirection: 'row',
@@ -138,13 +150,16 @@ export default function Home() {
 
 // --- SECCIÓN CADUCIDAD PRÓXIMA ---
 function ExpiringSection({ expiringLots, food }) {
+    const [showAll, setShowAll] = useState(false);
+    const visibleLots = showAll ? expiringLots : expiringLots.slice(0, 5);
+
     return (
         <View>
             <Text style={styles.sectionTitle}>Caducan pronto</Text>
             {expiringLots.length === 0 && (
                 <Text style={{ color: '#999' }}>Nada caduca pronto 🎉</Text>
             )}
-            {expiringLots.map(lot => {
+            {visibleLots.map(lot => {
                 const foodItem = food.find(f => f.id === lot.FoodId);
                 return (
                     <View key={lot.id} style={styles.alertCard}>
@@ -155,6 +170,12 @@ function ExpiringSection({ expiringLots, food }) {
                     </View>
                 );
             })}
+            {expiringLots.length > 5 && (
+                <TouchableOpacity onPress={() => setShowAll(!showAll)} style={styles.showMoreButton}>
+                    <Text style={styles.showMoreText}>{showAll ? 'Mostrar menos' : `Mostrar ${expiringLots.length - 5} más`}</Text>
+                    <Ionicons name={showAll ? 'chevron-up' : 'chevron-down'} size={16} color="#4a5a6a" />
+                </TouchableOpacity>
+            )}
         </View>
     );
 }

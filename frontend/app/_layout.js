@@ -38,8 +38,8 @@ export default function RootLayout() {
                             drawerContent={(props) => <CustomDrawerContent {...props} />}
                         >
                             <Drawer.Screen name="index" options={{ title: 'Inicio' }} />
-                            <Drawer.Screen name="(comida)" options={{ title: 'Comida' }} />
-                            <Drawer.Screen name="(articulos)" options={{ title: 'Artículos' }} />
+                            <Drawer.Screen name="(comida)" options={{ title: 'Comida', unmountOnBlur: true }} />
+                            <Drawer.Screen name="(articulos)" options={{ title: 'Artículos', unmountOnBlur: true }} />
                             <Drawer.Screen name="shopping-list" options={{ title: 'Lista de la compra' }} />
                             <Drawer.Screen name="search" options={{ title: 'Buscar ' }} />
                             <Drawer.Screen name="review-purchase" options={{ drawerItemStyle: { display: 'none' } }} />
