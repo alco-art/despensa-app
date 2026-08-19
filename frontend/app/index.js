@@ -195,6 +195,12 @@ function QuickAccessSection({ router }) {
                     </View>
                     <Text style={styles.cardText}>Lista de la compra</Text>
                 </TouchableOpacity>
+                <TouchableOpacity style={styles.card} activeOpacity={0.7} onPress={() => router.push('/search')}>
+                    <View style={styles.cardIcon}>
+                        <Ionicons name="search-outline" size={20} color="#4a5a6a" />
+                    </View>
+                    <Text style={styles.cardText}>Buscar</Text>
+                </TouchableOpacity>
             </View>
         </View>
     );

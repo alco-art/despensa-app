@@ -1,23 +1,128 @@
-import { View, Text, StyleSheet } from "react-native";
+import { useState, useContext } from 'react';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import FoodContext from '../context/FoodContext';
+import HouseholdContext from '../context/HouseholdContext';
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        padding: 16
+        paddingHorizontal: 8,
+        paddingTop: 8
     },
-    title: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        color: '#4a5a6a'
+    searchInput: {
+        borderWidth: 1,
+        borderColor: '#ccc',
+        borderRadius: 6,
+        padding: 10,
+        backgroundColor: '#fff',
+        marginBottom: 8
+    },
+    headerRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#4a5a6a',
+        borderTopLeftRadius: 8,
+        borderTopRightRadius: 8
+    },
+    row: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 10,
+        borderBottomWidth: 1,
+        borderBottomColor: '#eee'
+    },
+    cell: {
+        flex: 1,
+        padding: 7,
+        textAlign: 'center'
+    },
+    headerText: {
+        textAlign: 'center',
+        color: '#ffffff',
+        fontWeight: 'bold'
+    },
+    availabilityCell: {
+        width: 40,
+        alignItems: 'center'
+    },
+    dot: {
+        width: 12,
+        height: 12,
+        borderRadius: 6
     }
 });
 
-export default function Home() {
+export default function Search() {
+    const { food, lots } = useContext(FoodContext);
+    const { items } = useContext(HouseholdContext);
+    const [query, setQuery] = useState('');
+
+    // --- COMBINAR COMIDA Y ARTÍCULOS ---
+    const foodResults = food.map(f => {
+        const activeLots = lots.filter(lot => lot.FoodId === f.id && !lot.Deleted);
+        return {
+            id: f.id,
+            type: 'food',
+            name: f.Food,
+            brand: f.Brand,
+            store: f.Store,
+            available: activeLots.length > 0
+        };
+    });
+
+    const itemResults = items
+        .filter(i => !i.Deleted)
+        .map(i => {
+            return {
+                id: i.id,
+                type: 'item',
+                name: i.Name,
+                brand: i.Brand,
+                store: i.Store,
+                available: i.Quantity > 0
+            };
+        });
+
+    const allResults = [...foodResults, ...itemResults];
+
+    // --- FILTRO POR TEXTO ---
+    const filteredResults = allResults.filter(item => {
+        const search = query.toLowerCase();
+        return (
+            item.name.toLowerCase().includes(search) ||
+            (item.brand || '').toLowerCase().includes(search) ||
+            (item.store || '').toLowerCase().includes(search)
+        );
+    });
+
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>Buscar</Text>
+            <TextInput
+                value={query}
+                onChangeText={setQuery}
+                placeholder="Buscar por nombre, marca o tienda"
+                placeholderTextColor="#999"
+                style={styles.searchInput}
+            />
+
+            <View style={styles.headerRow}>
+                <Text style={[styles.availabilityCell, styles.headerText]}>Stock</Text>
+                <Text style={[styles.cell, styles.headerText]}>Nombre</Text>
+                <Text style={[styles.cell, styles.headerText]}>Marca</Text>
+                <Text style={[styles.cell, styles.headerText]}>Tienda</Text>
+            </View>
+
+            {filteredResults.map((item, index) => (
+                <TouchableOpacity key={`${item.type}-${item.id}`} style={styles.row}>
+                    <View style={styles.availabilityCell}>
+                        <View style={[styles.dot, { backgroundColor: item.available ? '#2ecc71' : '#e74c3c' }]} />
+                    </View>
+                    <Text style={styles.cell}>{item.name}</Text>
+                    <Text style={styles.cell}>{item.brand}</Text>
+                    <Text style={styles.cell}>{item.store || '-'}</Text>
+                </TouchableOpacity>
+            ))}
         </View>
     );
 }
