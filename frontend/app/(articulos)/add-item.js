@@ -91,21 +91,21 @@ export default function AddItem() {
     const [keyboardVisible, setKeyboardVisible] = useState(false);
 
     const pickImage = async () => {
-    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (!permission.granted) {
-        Alert.alert('Permiso necesario', 'Necesitamos acceso a tus fotos para añadir una imagen.');
-        return;
-    }
+        const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (!permission.granted) {
+            Alert.alert('Permiso necesario', 'Necesitamos acceso a tus fotos para añadir una imagen.');
+            return;
+        }
 
-    const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ['images'],
-        quality: 0.5,
-    });
+        const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ['images'],
+            quality: 0.5,
+        });
 
-    if (!result.canceled) {
-        setPhoto(result.assets[0].uri);
-    }
-};
+        if (!result.canceled) {
+            setPhoto(result.assets[0].uri);
+        }
+    };
 
     useEffect(() => {
         const showSub = Keyboard.addListener('keyboardDidShow', () => setKeyboardVisible(true));
@@ -149,7 +149,7 @@ export default function AddItem() {
                     </TouchableOpacity>
                     {existingItemOpen && (
                         <View style={styles.filterOptions}>
-                            {items.map((it) => (
+                            {items.filter(it => !it.Archived).map((it) => (
                                 <TouchableOpacity key={it.id} onPress={() => { loadExistingItem(it); setExistingItemOpen(false); }}>
                                     <Text>{it.Name} - {it.Brand}</Text>
                                 </TouchableOpacity>
@@ -234,15 +234,15 @@ export default function AddItem() {
                         keyboardType='numeric' />
                 </View>
                 <View style={styles.fieldGroup}>
-    <Text style={styles.label}>Foto (opcional)</Text>
-    <TouchableOpacity onPress={pickImage} style={styles.filterButton}>
-        <Text>{photo ? 'Cambiar foto' : 'Seleccionar foto'}</Text>
-        <Ionicons name="camera-outline" size={16} />
-    </TouchableOpacity>
-    {photo && (
-        <Image source={{ uri: photo }} style={{ width: 100, height: 100, borderRadius: 8, marginTop: 8 }} />
-    )}
-</View>
+                    <Text style={styles.label}>Foto (opcional)</Text>
+                    <TouchableOpacity onPress={pickImage} style={styles.filterButton}>
+                        <Text>{photo ? 'Cambiar foto' : 'Seleccionar foto'}</Text>
+                        <Ionicons name="camera-outline" size={16} />
+                    </TouchableOpacity>
+                    {photo && (
+                        <Image source={{ uri: photo }} style={{ width: 100, height: 100, borderRadius: 8, marginTop: 8 }} />
+                    )}
+                </View>
             </ScrollView>
 
             <View style={styles.buttonBar}>

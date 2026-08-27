@@ -150,6 +150,7 @@ export default function Search() {
             brand: f.Brand,
             store: f.Store,
             available: activeLots.length > 0,
+            archived: f.Archived,
             locations,
             lots: activeLots
         };
@@ -164,7 +165,8 @@ export default function Search() {
                 name: i.Name,
                 brand: i.Brand,
                 store: i.Store,
-                available: i.Quantity > 0
+                available: i.Quantity > 0,
+                archived: i.Archived
             };
         });
 
@@ -194,6 +196,11 @@ export default function Search() {
     };
 
     const handleResultPress = (item) => {
+        if (item.archived) {
+            showToast('Este producto está archivado.');
+            return;
+        }
+        
         if (!item.available) {
             showToast('No hay stock de este producto.');
             return;
@@ -278,7 +285,7 @@ export default function Search() {
                         style={[styles.row, { backgroundColor: index % 2 === 0 ? '#ffffff' : '#f0f4f7' }]}
                         onPress={() => handleResultPress(item)}>
                         <View style={styles.availabilityCell}>
-                            <View style={[styles.dot, { backgroundColor: item.available ? '#2ecc71' : '#e74c3c' }]} />
+                            <View style={[styles.dot, { backgroundColor: item.archived ? '#999' : (item.available ? '#2ecc71' : '#e74c3c') }]} />
                         </View>
                         <Text style={styles.cell}>{item.name}</Text>
                         <Text style={styles.cell}>{item.brand}</Text>

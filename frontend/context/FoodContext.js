@@ -33,7 +33,8 @@ export function FoodProvider({ children }) {
             },
             Photo: f.photo,
             InShoppingList: f.inShoppingList === 1,
-            ShoppingQuantity: f.shoppingQuantity
+            ShoppingQuantity: f.shoppingQuantity,
+            Archived: f.archived === 1
         }));
 
         const transformedLots = lotResult.map(l => ({
@@ -116,6 +117,11 @@ export function FoodProvider({ children }) {
             'UPDATE Lot SET deleted = ? WHERE id = ?', [1, lotId]
         );
 
+        await loadData();
+    };
+
+    const toggleArchiveFood = async (foodId, archived) => {
+        await db.runAsync('UPDATE Food SET archived = ? WHERE id = ?', [archived ? 1 : 0, foodId]);
         await loadData();
     };
 
@@ -210,7 +216,7 @@ export function FoodProvider({ children }) {
     };
 
     return (
-        <FoodContext.Provider value={{ food, setFood, lots, setLots, decreaseServing, increaseServing, increaseShoppingQuantity, decreaseShoppingQuantity, deleteFood, moveLot, addFood, loadData, addToShoppingList, removeFromShoppingList, addLotsToExistingFood }}>
+        <FoodContext.Provider value={{ food, setFood, lots, setLots, decreaseServing, increaseServing, increaseShoppingQuantity, decreaseShoppingQuantity, deleteFood, toggleArchiveFood, moveLot, addFood, loadData, addToShoppingList, removeFromShoppingList, addLotsToExistingFood }}>
             {children}
         </FoodContext.Provider>
     );

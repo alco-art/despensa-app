@@ -20,7 +20,8 @@ export const initDatabase = () => {
             salt REAL,
             inShoppingList INTEGER DEFAULT 0,
             shoppingQuantity INTEGER DEFAULT 1,
-            photo TEXT
+            photo TEXT,
+            archived INTEGER DEFAULT 0
         );
     `);
 
@@ -49,7 +50,8 @@ export const initDatabase = () => {
             weight REAL,
             inShoppingList INTEGER DEFAULT 0,
             deleted INTEGER DEFAULT 0,
-            photo TEXT
+            photo TEXT,
+            archived INTEGER DEFAULT 0
         );
     `);
 }

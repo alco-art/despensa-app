@@ -1,5 +1,5 @@
 import { useState, useContext, useCallback, useEffect } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Modal, Image } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Modal, Image, ScrollView } from "react-native";
 import { useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
@@ -33,7 +33,6 @@ const styles = StyleSheet.create({
         marginTop: 12
     },
     container: {
-        flex: 1,
         paddingHorizontal: 8,
         marginTop: 8
     },
@@ -131,7 +130,7 @@ export default function Household() {
     const [toastMessage, setToastMessage] = useState('');
     const { highlightItem } = useLocalSearchParams();
 
-    const { items, decreaseQuantity, increaseQuantity, deleteItem, addItemToShoppingList } = useContext(HouseholdContext);
+    const { items, decreaseQuantity, increaseQuantity, deleteItem, addItemToShoppingList, toggleArchiveItem } = useContext(HouseholdContext);
 
     useFocusEffect(
         useCallback(() => {
@@ -199,7 +198,7 @@ export default function Household() {
     }
 
     return (
-        <View style={styles.container}>
+        <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.container} persistentScrollbar={true} indicatorStyle="black">
             <TouchableOpacity onPress={() => setFilterOpen(!filterOpen)} style={styles.filterButton}>
                 <Text>{activeFilter ? activeFilter : "Filtrar por tipo"}</Text>
                 <Ionicons name={filterOpen ? "chevron-up" : "chevron-down"} size={16} />
@@ -242,7 +241,7 @@ export default function Household() {
                         </View>
                         {expandedIndex === item.id && (
                             <View style={styles.expandedRow}>
-                                <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 30 }}>
+                                <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 18 }}>
                                     <TouchableOpacity onPress={() => { setSelectedItemInfo(item); setInfoModalVisible(true); }} style={{ flexDirection: 'row', alignItems: 'center' }}>
                                         <Ionicons name="information-circle-outline" size={20} />
                                         <Text style={styles.expandedText}>Info</Text>
@@ -262,7 +261,7 @@ export default function Household() {
                                         <Text style={styles.expandedText}>Añadir</Text>
                                     </TouchableOpacity>
                                 </View>
-                                <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 40, marginTop: 12 }}>
+                                <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 16, marginTop: 12 }}>
                                     <TouchableOpacity onPress={() => { addItemToShoppingList(item.id); showToast(`${item.Name} añadido a la compra`); }} style={{ flexDirection: 'row', alignItems: 'center' }}>
                                         <Ionicons name="cart-outline" size={20} />
                                         <Text style={styles.expandedText}>Añadir a la compra</Text>
@@ -273,6 +272,14 @@ export default function Household() {
                                     }} style={{ flexDirection: 'row', alignItems: 'center' }}>
                                         <Ionicons name="trash-outline" size={20} />
                                         <Text style={styles.expandedText}>Eliminar</Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity onPress={() => {
+                                        const newArchivedState = !item.Archived;
+                                        toggleArchiveItem(item.id, newArchivedState);
+                                        showToast(newArchivedState ? `${item.Name} archivado.` : `${item.Name} desarchivado.`);
+                                    }} style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                        <Ionicons name={item.Archived ? "archive" : "archive-outline"} size={20} />
+                                        <Text style={styles.expandedText}>{item.Archived ? 'Desarchivar' : 'Archivar'}</Text>
                                     </TouchableOpacity>
                                 </View>
                             </View>
@@ -329,6 +336,6 @@ export default function Household() {
             </Modal>
 
             <Toast message={toastMessage} visible={toastVisible} />
-        </View>
+        </ScrollView>
     );
 }

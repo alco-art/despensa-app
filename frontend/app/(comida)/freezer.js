@@ -160,7 +160,7 @@ export default function Freezer() {
     const [toastVisible, setToastVisible] = useState(false);
     const [toastMessage, setToastMessage] = useState('');
     const { highlightLot } = useLocalSearchParams();
-    const { food, setFood, lots, setLots, decreaseServing, increaseServing, deleteFood, moveLot, addToShoppingList } = useContext(FoodContext);
+    const { food, setFood, lots, setLots, decreaseServing, increaseServing, deleteFood, moveLot, addToShoppingList, toggleArchiveFood } = useContext(FoodContext);
 
     useFocusEffect(
         useCallback(() => {
@@ -276,7 +276,7 @@ export default function Freezer() {
                                 </View>
                                 {expandedIndex === lot.id && (
                                     <View style={styles.expandedRow}>
-                                        <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 30 }}>
+                                        <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 9 }}>
                                             <TouchableOpacity onPress={() => { setSelectedFoodInfo(foodItem); setInfoModalVisible(true) }} style={{ flexDirection: 'row', alignItems: 'center' }}>
                                                 <Ionicons name="information-circle-outline" size={20} />
                                                 <Text style={styles.expandedText}>Info</Text>
@@ -295,17 +295,17 @@ export default function Freezer() {
                                                 <Ionicons name="add-circle-outline" size={20} />
                                                 <Text style={styles.expandedText}>Añadir porción</Text>
                                             </TouchableOpacity>
-                                        </View>
-                                        <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 30 }}>
                                             <TouchableOpacity onPress={() => {
                                                 setSelectedLotToMove(lot);
                                                 setMoveQuantity('1');
                                                 setMoveDestination('');
                                                 setMoveModalVisible(true);
-                                            }} style={{ flexDirection: 'row', alignItems: 'center', marginTop: 12 }}>
+                                            }} style={{ flexDirection: 'row', alignItems: 'center' }}>
                                                 <Ionicons name="swap-horizontal-outline" size={20} />
                                                 <Text style={styles.expandedText}>Mover</Text>
                                             </TouchableOpacity>
+                                        </View>
+                                        <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 16 }}>
                                             <TouchableOpacity onPress={() => {
                                                 if (foodItem.InShoppingList) {
                                                     showToast(`${foodItem.Food} ya está en la lista de la compra.`);
@@ -323,6 +323,14 @@ export default function Freezer() {
                                             }} style={{ flexDirection: 'row', alignItems: 'center', marginTop: 12 }}>
                                                 <Ionicons name="trash-outline" size={20} />
                                                 <Text style={styles.expandedText}>Eliminar</Text>
+                                            </TouchableOpacity>
+                                            <TouchableOpacity onPress={() => {
+                                                const newArchivedState = !foodItem.Archived;
+                                                toggleArchiveFood(foodItem.id, newArchivedState);
+                                                showToast(newArchivedState ? `${foodItem.Food} archivado.` : `${foodItem.Food} desarchivado.`);
+                                            }} style={{ flexDirection: 'row', alignItems: 'center', marginTop: 12 }}>
+                                                <Ionicons name={foodItem.Archived ? "archive" : "archive-outline"} size={20} />
+                                                <Text style={styles.expandedText}>{foodItem.Archived ? 'Desarchivar' : 'Archivar'}</Text>
                                             </TouchableOpacity>
                                         </View>
                                     </View>

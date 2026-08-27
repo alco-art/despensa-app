@@ -4,7 +4,7 @@ import { db } from "../database/db";
 const HouseholdContext = createContext();
 
 export function HouseholdProvider({ children }) {
-    const [ items, setItems ] = useState([]);
+    const [items, setItems] = useState([]);
 
     useEffect(() => {
         loadItems();
@@ -22,7 +22,8 @@ export function HouseholdProvider({ children }) {
             Weight: i.weight,
             Photo: i.photo,
             InShoppingList: i.inShoppingList === 1,
-            Deleted: i.deleted === 1
+            Deleted: i.deleted === 1,
+            Archived: i.archived === 1
         }));
 
         setItems(transformed);
@@ -80,6 +81,11 @@ export function HouseholdProvider({ children }) {
         await loadItems();
     };
 
+    const toggleArchiveItem = async (itemId, archived) => {
+        await db.runAsync('UPDATE Item SET archived = ? WHERE id = ?', [archived ? 1 : 0, itemId]);
+        await loadItems();
+    };
+
     const confirmPurchaseItem = async (itemId, quantity) => {
         const addQty = Number(quantity) || 1;
         await db.runAsync('UPDATE Item SET quantity = quantity + ?, inShoppingList = 0 WHERE id = ?', [addQty, itemId]);
@@ -87,7 +93,7 @@ export function HouseholdProvider({ children }) {
     }
 
     return (
-        <HouseholdContext.Provider value={{ items, loadItems, addItem, decreaseQuantity, increaseQuantity, deleteItem, addItemToShoppingList, removeItemFromShoppingList, confirmPurchaseItem }}>
+        <HouseholdContext.Provider value={{ items, loadItems, addItem, decreaseQuantity, increaseQuantity, deleteItem, addItemToShoppingList, removeItemFromShoppingList, confirmPurchaseItem, toggleArchiveItem }}>
             {children}
         </HouseholdContext.Provider>
     );

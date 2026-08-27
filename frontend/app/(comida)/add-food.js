@@ -212,7 +212,7 @@ export default function AddFood() {
                             </TouchableOpacity>
                             {existingFoodOpen && (
                                 <View style={styles.filterOptions}>
-                                    {food.map((f) => (
+                                    {food.filter(f => !f.Archived).map((f) => (
                                         <TouchableOpacity key={f.id} onPress={() => { loadExistingFood(f); setExistingFoodOpen(false); }}>
                                             <Text>{f.Food} - {f.Brand}</Text>
                                         </TouchableOpacity>
