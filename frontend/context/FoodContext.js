@@ -6,6 +6,7 @@ const FoodContext = createContext();
 export function FoodProvider({ children }) {
     const [food, setFood] = useState([]);
     const [lots, setLots] = useState([]);
+    const [photos, setPhotos] = useState([]);
 
     useEffect(() => {
         loadData();
@@ -14,6 +15,8 @@ export function FoodProvider({ children }) {
     const loadData = async () => {
         const foodResult = await db.getAllAsync('SELECT * FROM Food'); //getAllAsync READ -- runAsync INSERT/UPDATE
         const lotResult = await db.getAllAsync('SELECT * FROM Lot');
+        const photoResult = await db.getAllAsync("SELECT * FROM Photo WHERE parentType = 'food'");
+
 
         const transformedFood = foodResult.map(f => ({
             id: f.id,
@@ -31,7 +34,6 @@ export function FoodProvider({ children }) {
                 Fiber: f.fiber,
                 Salt: f.salt
             },
-            Photo: f.photo,
             InShoppingList: f.inShoppingList === 1,
             ShoppingQuantity: f.shoppingQuantity,
             Archived: f.archived === 1
@@ -47,8 +49,17 @@ export function FoodProvider({ children }) {
             ExpDate: l.expDate,
             Deleted: l.deleted === 1
         }));
+
+        const transformedPhotos = photoResult.map(p => ({
+            id: p.id,
+            ParentId: p.parentId,
+            Uri: p.uri,
+            IsPrimary: p.isPrimary === 1
+        }));
+
         setFood(transformedFood);
         setLots(transformedLots);
+        setPhotos(transformedPhotos);
     }
 
     const decreaseServing = async (lotId) => {
@@ -158,8 +169,30 @@ export function FoodProvider({ children }) {
         await loadData();
     };
 
+    const addPhoto = async (foodId, uri) => {
+        const existing = photos.filter(p => p.ParentId === foodId);
+        const isFirstPhoto = existing.length === 0;
+
+        await db.runAsync(
+            'INSERT INTO Photo (parentType, parentId, uri, isPrimary) VALUES (?, ?, ?, ?)',
+            ['food', foodId, uri, isFirstPhoto ? 1 : 0]
+        );
+        await loadData();
+    };
+
+    const deletePhoto = async (photoId) => {
+        await db.runAsync('DELETE FROM Photo WHERE id = ?', [photoId]);
+        await loadData();
+    };
+
+    const setPrimaryPhoto = async (foodId, photoId) => {
+        await db.runAsync('UPDATE Photo SET isPrimary = 0 WHERE parentType = ? AND parentId = ?', ['food', foodId]);
+        await db.runAsync('UPDATE Photo SET isPrimary = 1 WHERE id = ?', [photoId]);
+        await loadData();
+    };
+
     const addFood = async (formData) => {
-        const { name, brand, store, filter, defaultLocation, weightPerUnit, quantity, expDate, servingsPerUnit, nutritionalInfo, photo } = formData;
+        const { name, brand, store, filter, defaultLocation, weightPerUnit, quantity, expDate, servingsPerUnit, nutritionalInfo } = formData;
 
         //Comprobar si el alimento ya existe
         const existing = await db.getAllAsync(
@@ -174,9 +207,9 @@ export function FoodProvider({ children }) {
         }
         else {
             const result = await db.runAsync(
-                `INSERT INTO Food (name, brand, store, filter, defaultLocation, weightPerUnit, calories, carbs, protein, fat, fiber, salt, photo)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-                [name, brand, store, filter || "Sin categoría", defaultLocation, Number(weightPerUnit), Number(nutritionalInfo.Calories), Number(nutritionalInfo.Carbs), Number(nutritionalInfo.Protein), Number(nutritionalInfo.Fat), Number(nutritionalInfo.Fiber), Number(nutritionalInfo.Salt), photo || null]
+                `INSERT INTO Food (name, brand, store, filter, defaultLocation, weightPerUnit, calories, carbs, protein, fat, fiber, salt)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                [name, brand, store, filter || "Sin categoría", defaultLocation, Number(weightPerUnit), Number(nutritionalInfo.Calories), Number(nutritionalInfo.Carbs), Number(nutritionalInfo.Protein), Number(nutritionalInfo.Fat), Number(nutritionalInfo.Fiber), Number(nutritionalInfo.Salt)]
             );
 
             foodId = result.lastInsertRowId;
@@ -197,6 +230,7 @@ export function FoodProvider({ children }) {
         };
 
         await loadData(); //recarga Lots y Food desde la BD para reflejar los cambios en pantalla
+        return foodId;
     };
 
     const addLotsToExistingFood = async (foodId, location, expDate, quantity) => {
@@ -216,19 +250,19 @@ export function FoodProvider({ children }) {
     };
 
     const updateFood = async (foodId, formData) => {
-        const { name, brand, store, filter, defaultLocation, weightPerUnit, nutritionalInfo, photo } = formData;
+        const { name, brand, store, filter, defaultLocation, weightPerUnit, nutritionalInfo } = formData;
 
         await db.runAsync(
-            `UPDATE Food SET name = ?, brand = ?, store = ?, filter = ?, defaultLocation = ?, weightPerUnit = ?, calories = ?, carbs = ?, protein = ?, fat = ?, fiber = ?, salt = ?, photo = ?
+            `UPDATE Food SET name = ?, brand = ?, store = ?, filter = ?, defaultLocation = ?, weightPerUnit = ?, calories = ?, carbs = ?, protein = ?, fat = ?, fiber = ?, salt = ?
          WHERE id = ?`,
-            [name, brand, store, filter, defaultLocation, Number(weightPerUnit), Number(nutritionalInfo.Calories), Number(nutritionalInfo.Carbs), Number(nutritionalInfo.Protein), Number(nutritionalInfo.Fat), Number(nutritionalInfo.Fiber), Number(nutritionalInfo.Salt), photo || null, foodId]
+            [name, brand, store, filter, defaultLocation, Number(weightPerUnit), Number(nutritionalInfo.Calories), Number(nutritionalInfo.Carbs), Number(nutritionalInfo.Protein), Number(nutritionalInfo.Fat), Number(nutritionalInfo.Fiber), Number(nutritionalInfo.Salt), foodId]
         );
 
         await loadData();
     };
 
     return (
-        <FoodContext.Provider value={{ food, setFood, lots, setLots, decreaseServing, increaseServing, increaseShoppingQuantity, decreaseShoppingQuantity, deleteFood, toggleArchiveFood, moveLot, addFood, loadData, addToShoppingList, removeFromShoppingList, addLotsToExistingFood, updateFood }}>
+        <FoodContext.Provider value={{ food, setFood, lots, setLots, photos, decreaseServing, increaseServing, increaseShoppingQuantity, decreaseShoppingQuantity, deleteFood, toggleArchiveFood, moveLot, addFood, loadData, addToShoppingList, removeFromShoppingList, addLotsToExistingFood, updateFood, addPhoto, deletePhoto, setPrimaryPhoto }}>
             {children}
         </FoodContext.Provider>
     );

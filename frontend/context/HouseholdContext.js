@@ -5,6 +5,7 @@ const HouseholdContext = createContext();
 
 export function HouseholdProvider({ children }) {
     const [items, setItems] = useState([]);
+    const [photos, setPhotos] = useState([]);
 
     useEffect(() => {
         loadItems();
@@ -12,6 +13,8 @@ export function HouseholdProvider({ children }) {
 
     const loadItems = async () => {
         const result = await db.getAllAsync('SELECT * FROM Item');
+        const photoResult = await db.getAllAsync("SELECT * FROM Photo WHERE parentType = 'item'");
+
         const transformed = result.map(i => ({
             id: i.id,
             Name: i.name,
@@ -20,27 +23,35 @@ export function HouseholdProvider({ children }) {
             Filter: i.filter,
             Quantity: i.quantity,
             Weight: i.weight,
-            Photo: i.photo,
             InShoppingList: i.inShoppingList === 1,
             Deleted: i.deleted === 1,
             Archived: i.archived === 1
         }));
 
+        const transformedPhotos = photoResult.map(p => ({
+            id: p.id,
+            ParentId: p.parentId,
+            Uri: p.uri,
+            IsPrimary: p.isPrimary === 1
+        }));
+
         setItems(transformed);
+        setPhotos(transformedPhotos);
     };
 
     const addItem = async (formData) => {
-        const { name, brand, store, filter, quantity, weight, photo } = formData;
+        const { name, brand, store, filter, quantity, weight } = formData;
 
         const totalQuantity = Number(quantity) || 1;
 
         await db.runAsync(
-            `INSERT INTO Item (name, brand, store, filter, quantity, weight, photo)
-            VALUES (?, ?, ?, ?, ?, ?, ?)`,
-            [name, brand, store, filter, totalQuantity, weight ? Number(weight) : null, photo || null]
+            `INSERT INTO Item (name, brand, store, filter, quantity, weight)
+            VALUES (?, ?, ?, ?, ?, ?)`,
+            [name, brand, store, filter, totalQuantity, weight ? Number(weight) : null]
         );
 
         await loadItems();
+        return result.lastInsertRowId;
     };
 
     const decreaseQuantity = async (itemId) => {
@@ -93,19 +104,41 @@ export function HouseholdProvider({ children }) {
     }
 
     const updateItem = async (itemId, formData) => {
-        const { name, brand, store, filter, weight, photo } = formData;
+        const { name, brand, store, filter, weight } = formData;
 
         await db.runAsync(
-            `UPDATE Item SET name = ?, brand = ?, store = ?, filter = ?, weight = ?, photo = ?
+            `UPDATE Item SET name = ?, brand = ?, store = ?, filter = ?, weight = ?
          WHERE id = ?`,
-            [name, brand, store, filter, weight ? Number(weight) : null, photo || null, itemId]
+            [name, brand, store, filter, weight ? Number(weight) : null, itemId]
         );
 
         await loadItems();
     };
 
+    const addPhoto = async (itemId, uri) => {
+        const existing = photos.filter(p => p.ParentId === itemId);
+        const isFirstPhoto = existing.length === 0;
+
+        await db.runAsync(
+            'INSERT INTO Photo (parentType, parentId, uri, isPrimary) VALUES (?, ?, ?, ?)',
+            ['item', itemId, uri, isFirstPhoto ? 1 : 0]
+        );
+        await loadItems();
+    };
+
+    const deletePhoto = async (photoId) => {
+        await db.runAsync('DELETE FROM Photo WHERE id = ?', [photoId]);
+        await loadItems();
+    };
+
+    const setPrimaryPhoto = async (itemId, photoId) => {
+        await db.runAsync('UPDATE Photo SET isPrimary = 0 WHERE parentType = ? AND parentId = ?', ['item', itemId]);
+        await db.runAsync('UPDATE Photo SET isPrimary = 1 WHERE id = ?', [photoId]);
+        await loadItems();
+    };
+
     return (
-        <HouseholdContext.Provider value={{ items, loadItems, addItem, decreaseQuantity, increaseQuantity, deleteItem, addItemToShoppingList, removeItemFromShoppingList, confirmPurchaseItem, toggleArchiveItem, updateItem }}>
+        <HouseholdContext.Provider value={{ items, photos, loadItems, addItem, decreaseQuantity, increaseQuantity, deleteItem, addItemToShoppingList, removeItemFromShoppingList, confirmPurchaseItem, toggleArchiveItem, updateItem, addPhoto, deletePhoto, setPrimaryPhoto }}>
             {children}
         </HouseholdContext.Provider>
     );

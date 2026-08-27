@@ -20,7 +20,6 @@ export const initDatabase = () => {
             salt REAL,
             inShoppingList INTEGER DEFAULT 0,
             shoppingQuantity INTEGER DEFAULT 1,
-            photo TEXT,
             archived INTEGER DEFAULT 0
         );
     `);
@@ -50,8 +49,17 @@ export const initDatabase = () => {
             weight REAL,
             inShoppingList INTEGER DEFAULT 0,
             deleted INTEGER DEFAULT 0,
-            photo TEXT,
             archived INTEGER DEFAULT 0
+        );
+    `);
+
+    db.execSync(`
+        CREATE TABLE IF NOT EXISTS Photo (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            parentType TEXT NOT NULL,
+            parentId INTEGER NOT NULL,
+            uri TEXT NOT NULL,
+            isPrimary INTEGER DEFAULT 0
         );
     `);
 }

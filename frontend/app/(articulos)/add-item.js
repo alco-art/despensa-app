@@ -1,5 +1,5 @@
 import { useState, useContext, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Alert, KeyboardAvoidingView, Platform, Keyboard, Image } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Alert, KeyboardAvoidingView, Platform, Keyboard, Image, Modal } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
@@ -71,13 +71,56 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         backgroundColor: '#4a5a6a',
         alignItems: 'center'
+    },
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    modalContent: {
+        backgroundColor: '#fff',
+        borderRadius: 10,
+        padding: 20,
+        width: '85%',
+        gap: 8
+    },
+    modalTitle: {
+        fontSize: 18,
+        fontWeight: 'bold'
+    },
+    modalSubtitle: {
+        fontSize: 13,
+        color: '#666',
+        marginBottom: 4
+    },
+    locationOption: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        backgroundColor: '#e0edf1',
+        padding: 12,
+        borderRadius: 6
+    },
+    locationOptionText: {
+        fontSize: 15,
+        fontWeight: '600',
+        color: '#4a5a6a'
+    },
+    cancelModalButton: {
+        padding: 10,
+        borderRadius: 6,
+        alignItems: 'center',
+        marginTop: 8,
+        borderWidth: 1,
+        borderColor: '#999'
     }
 });
 
 const filterOptions = ["Limpieza", "Higiene", "Hogar", "Otros"];
 
 export default function AddItem() {
-    const { items, addItem } = useContext(HouseholdContext);
+    const { items, addItem, addPhoto } = useContext(HouseholdContext);
     const router = useRouter();
     const [name, setName] = useState('');
     const [brand, setBrand] = useState('');
@@ -85,25 +128,39 @@ export default function AddItem() {
     const [filter, setFilter] = useState('');
     const [quantity, setQuantity] = useState('');
     const [weight, setWeight] = useState('');
-    const [photo, setPhoto] = useState(null);
+    const [selectedPhotos, setSelectedPhotos] = useState([]);
     const [filterOpen, setFilterOpen] = useState(false);
     const [existingItemOpen, setExistingItemOpen] = useState(false);
     const [keyboardVisible, setKeyboardVisible] = useState(false);
+    const [photoOptionsVisible, setPhotoOptionsVisible] = useState(false);
 
-    const pickImage = async () => {
+    const pickImage = () => {
+        setPhotoOptionsVisible(true);
+    };
+
+    const takePhoto = async () => {
+        setPhotoOptionsVisible(false);
+        const permission = await ImagePicker.requestCameraPermissionsAsync();
+        if (!permission.granted) {
+            Alert.alert('Permiso necesario', 'Necesitamos acceso a tu cámara para hacer la foto.');
+            return;
+        }
+        const result = await ImagePicker.launchCameraAsync({ mediaTypes: ['images'], quality: 0.5 });
+        if (!result.canceled) {
+            setSelectedPhotos([...selectedPhotos, result.assets[0].uri]);
+        }
+    };
+
+    const pickFromGallery = async () => {
+        setPhotoOptionsVisible(false);
         const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
         if (!permission.granted) {
             Alert.alert('Permiso necesario', 'Necesitamos acceso a tus fotos para añadir una imagen.');
             return;
         }
-
-        const result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ['images'],
-            quality: 0.5,
-        });
-
+        const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 0.5 });
         if (!result.canceled) {
-            setPhoto(result.assets[0].uri);
+            setSelectedPhotos([...selectedPhotos, result.assets[0].uri]);
         }
     };
 
@@ -122,7 +179,10 @@ export default function AddItem() {
         setBrand(item.Brand);
         setStore(item.Store || '');
         setFilter(item.Filter);
-        setPhoto(item.Photo || null);
+    };
+
+    const removeSelectedPhoto = (uri) => {
+        setSelectedPhotos(selectedPhotos.filter(p => p !== uri));
     };
 
     const handleSubmit = async () => {
@@ -130,9 +190,14 @@ export default function AddItem() {
             Alert.alert('Faltan datos', 'Rellena nombre, marca, tienda y filtro.');
             return;
         }
+        const newItemId = await addItem({ name, brand, store, filter, quantity, weight });
 
-        await addItem({ name, brand, store, filter, quantity, weight, photo });
-        setName(''); setBrand(''); setStore(''); setFilter(''); setQuantity(''); setWeight(''), setPhoto(null);
+        for (const uri of selectedPhotos) {
+            await addPhoto(newItemId, uri);
+        }
+
+        setName(''); setBrand(''); setStore(''); setFilter(''); setQuantity(''); setWeight('');
+        setSelectedPhotos([]);
         Alert.alert('Guardado', 'Artículo añadido correctamente.');
     };
 
@@ -234,13 +299,25 @@ export default function AddItem() {
                         keyboardType='numeric' />
                 </View>
                 <View style={styles.fieldGroup}>
-                    <Text style={styles.label}>Foto (opcional)</Text>
+                    <Text style={styles.label}>Fotos (opcional)</Text>
                     <TouchableOpacity onPress={pickImage} style={styles.filterButton}>
-                        <Text>{photo ? 'Cambiar foto' : 'Seleccionar foto'}</Text>
+                        <Text>Añadir fotos</Text>
                         <Ionicons name="camera-outline" size={16} />
                     </TouchableOpacity>
-                    {photo && (
-                        <Image source={{ uri: photo }} style={{ width: 100, height: 100, borderRadius: 8, marginTop: 8 }} />
+                    {selectedPhotos.length > 0 && (
+                        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 8 }}>
+                            {selectedPhotos.map((uri, index) => (
+                                <View key={index} style={{ position: 'relative' }}>
+                                    <Image source={{ uri }} style={{ width: 80, height: 80, borderRadius: 8 }} />
+                                    <TouchableOpacity
+                                        onPress={() => removeSelectedPhoto(uri)}
+                                        style={{ position: 'absolute', top: -6, right: -6, backgroundColor: '#e74c3c', borderRadius: 10 }}
+                                    >
+                                        <Ionicons name="close" size={16} color="#fff" />
+                                    </TouchableOpacity>
+                                </View>
+                            ))}
+                        </View>
                     )}
                 </View>
             </ScrollView>
@@ -253,6 +330,26 @@ export default function AddItem() {
                     <Text style={{ color: '#fff' }}>Guardar</Text>
                 </TouchableOpacity>
             </View>
+
+            <Modal visible={photoOptionsVisible} transparent={true} animationType="fade">
+                <View style={styles.modalOverlay}>
+                    <View style={styles.modalContent}>
+                        <Text style={styles.modalTitle}>Añadir foto</Text>
+                        <Text style={styles.modalSubtitle}>¿Cómo quieres añadir la foto?</Text>
+                        <TouchableOpacity style={styles.locationOption} onPress={takePhoto}>
+                            <Text style={styles.locationOptionText}>Cámara</Text>
+                            <Ionicons name="camera" size={18} color="#4a5a6a" />
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.locationOption} onPress={pickFromGallery}>
+                            <Text style={styles.locationOptionText}>Galería</Text>
+                            <Ionicons name="images" size={18} color="#4a5a6a" />
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => setPhotoOptionsVisible(false)} style={styles.cancelModalButton}>
+                            <Text>Cancelar</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </Modal>
         </KeyboardAvoidingView>
     );
 }

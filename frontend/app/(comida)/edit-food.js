@@ -1,5 +1,5 @@
 import { useState, useContext, useEffect } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, ScrollView, Platform, Alert, Keyboard, Image } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, ScrollView, Platform, Alert, Keyboard, Image, Modal } from "react-native";
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, useLocalSearchParams } from "expo-router";
@@ -7,17 +7,124 @@ import * as ImagePicker from 'expo-image-picker';
 import FoodContext from "../../context/FoodContext";
 
 const styles = StyleSheet.create({
-    scrollView: { flex: 1 },
-    container: { paddingTop: 8, paddingLeft: 12, paddingRight: 12 },
-    fieldGroup: { marginBottom: 16 },
-    label: { marginBottom: 6, fontWeight: '600', fontSize: 14 },
-    input: { borderWidth: 1, borderColor: '#ccc', borderRadius: 6, padding: 10, backgroundColor: '#fff' },
-    sectionTitle: { fontSize: 16, fontWeight: 'bold', marginTop: 8, marginBottom: 12 },
-    filterButton: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#e0edf1', padding: 10, borderRadius: 6, marginBottom: 8 },
-    filterOptions: { backgroundColor: '#f8f9fa', padding: 10, borderRadius: 6, marginBottom: 8, gap: 8 },
-    buttonBar: { flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', borderTopWidth: 1, paddingBottom: 8, borderTopColor: '#ddd', backgroundColor: '#ffffff', paddingVertical: 8 },
-    cancelButton: { flex: 1, marginLeft: 8, marginRight: 4, paddingVertical: 10, borderRadius: 6, borderWidth: 1, borderColor: '#999', alignItems: 'center' },
-    submitButton: { flex: 1, marginLeft: 4, marginRight: 8, paddingVertical: 10, borderRadius: 6, borderWidth: 1, backgroundColor: '#4a5a6a', alignItems: 'center' }
+    scrollView: {
+        flex: 1
+    },
+    container: {
+        paddingTop: 8,
+        paddingLeft: 12,
+        paddingRight: 12
+    },
+    fieldGroup: {
+        marginBottom: 16
+    },
+    label: {
+        marginBottom: 6,
+        fontWeight: '600',
+        fontSize: 14
+    },
+    input: {
+        borderWidth: 1,
+        borderColor: '#ccc',
+        borderRadius: 6,
+        padding: 10,
+        backgroundColor: '#fff'
+    },
+    sectionTitle: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        marginTop: 8,
+        marginBottom: 12
+    },
+    filterButton: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        backgroundColor: '#e0edf1',
+        padding: 10,
+        borderRadius: 6,
+        marginBottom: 8
+    },
+    filterOptions: {
+        backgroundColor: '#f8f9fa',
+        padding: 10,
+        borderRadius: 6,
+        marginBottom: 8,
+        gap: 8
+    },
+    buttonBar: {
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        alignItems: 'center',
+        borderTopWidth: 1,
+        paddingBottom: 8,
+        borderTopColor: '#ddd',
+        backgroundColor: '#ffffff',
+        paddingVertical: 8
+    },
+    cancelButton: {
+        flex: 1,
+        marginLeft: 8,
+        marginRight: 4,
+        paddingVertical: 10,
+        borderRadius: 6,
+        borderWidth: 1,
+        borderColor: '#999',
+        alignItems: 'center'
+    },
+    submitButton: {
+        flex: 1,
+        marginLeft: 4,
+        marginRight: 8,
+        paddingVertical: 10,
+        borderRadius: 6,
+        borderWidth: 1,
+        backgroundColor: '#4a5a6a',
+        alignItems: 'center'
+    },
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    modalContent: {
+        backgroundColor: '#fff',
+        borderRadius: 10,
+        padding: 20,
+        width: '85%',
+        gap: 8
+    },
+    modalTitle: {
+        fontSize: 18,
+        fontWeight: 'bold'
+    },
+    modalSubtitle: {
+        fontSize: 13,
+        color: '#666',
+        marginBottom: 4
+    },
+    locationOption: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        backgroundColor: '#e0edf1',
+        padding: 12,
+        borderRadius: 6
+    },
+    locationOptionText: {
+        fontSize: 15,
+        fontWeight: '600',
+        color: '#4a5a6a'
+    },
+    cancelModalButton: {
+        padding: 10,
+        borderRadius: 6,
+        alignItems: 'center',
+        marginTop: 8,
+        borderWidth: 1,
+        borderColor: '#999'
+    }
 });
 
 export default function EditFood() {
@@ -38,10 +145,40 @@ export default function EditFood() {
     const [locationOpen, setLocationOpen] = useState(false);
     const [filterFieldOpen, setFilterFieldOpen] = useState(false);
     const [keyboardVisible, setKeyboardVisible] = useState(false);
-
+    const [photoOptionsVisible, setPhotoOptionsVisible] = useState(false);
     const locationOptions = ["Fridge", "Freezer", "Pantry"];
     const filterOptions = ["Carne", "Pescado", "Lácteo", "Fruta y verdura", "Congelado", "Panadería", "Conserva", "Pasta y arroz", "Bebida", "Snacks", "Otros"];
     const locationLabels = { Fridge: "Nevera", Freezer: "Congelador", Pantry: "Despensa" };
+
+    const pickImage = () => {
+        setPhotoOptionsVisible(true);
+    };
+
+    const takePhoto = async () => {
+        setPhotoOptionsVisible(false);
+        const permission = await ImagePicker.requestCameraPermissionsAsync();
+        if (!permission.granted) {
+            Alert.alert('Permiso necesario', 'Necesitamos acceso a tu cámara para hacer la foto.');
+            return;
+        }
+        const result = await ImagePicker.launchCameraAsync({ mediaTypes: ['images'], quality: 0.5 });
+        if (!result.canceled) {
+            setPhoto(result.assets[0].uri);
+        }
+    };
+
+    const pickFromGallery = async () => {
+        setPhotoOptionsVisible(false);
+        const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (!permission.granted) {
+            Alert.alert('Permiso necesario', 'Necesitamos acceso a tus fotos para añadir una imagen.');
+            return;
+        }
+        const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 0.5 });
+        if (!result.canceled) {
+            setPhoto(result.assets[0].uri);
+        }
+    };
 
     useEffect(() => {
         const showSub = Keyboard.addListener('keyboardDidShow', () => setKeyboardVisible(true));
@@ -69,18 +206,6 @@ export default function EditFood() {
             });
         }
     }, [foodId, food]);
-
-    const pickImage = async () => {
-        const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
-        if (!permission.granted) {
-            Alert.alert('Permiso necesario', 'Necesitamos acceso a tus fotos para añadir una imagen.');
-            return;
-        }
-        const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 0.5 });
-        if (!result.canceled) {
-            setPhoto(result.assets[0].uri);
-        }
-    };
 
     const handleSubmit = async () => {
         if (!name || !brand || !store || !defaultLocation || !weightPerUnit || !nutritionalInfo.Calories) {
@@ -184,6 +309,7 @@ export default function EditFood() {
                         </View>
                     </ScrollView>
                 </KeyboardAvoidingView>
+
                 <View style={styles.buttonBar}>
                     <TouchableOpacity style={styles.cancelButton} onPress={() => router.back()}>
                         <Text>Cancelar</Text>
@@ -192,6 +318,26 @@ export default function EditFood() {
                         <Text style={{ color: '#fff' }}>Guardar cambios</Text>
                     </TouchableOpacity>
                 </View>
+
+                <Modal visible={photoOptionsVisible} transparent={true} animationType="fade">
+                    <View style={styles.modalOverlay}>
+                        <View style={styles.modalContent}>
+                            <Text style={styles.modalTitle}>Añadir foto</Text>
+                            <Text style={styles.modalSubtitle}>¿Cómo quieres añadir la foto?</Text>
+                            <TouchableOpacity style={styles.locationOption} onPress={takePhoto}>
+                                <Text style={styles.locationOptionText}>Cámara</Text>
+                                <Ionicons name="camera" size={18} color="#4a5a6a" />
+                            </TouchableOpacity>
+                            <TouchableOpacity style={styles.locationOption} onPress={pickFromGallery}>
+                                <Text style={styles.locationOptionText}>Galería</Text>
+                                <Ionicons name="images" size={18} color="#4a5a6a" />
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={() => setPhotoOptionsVisible(false)} style={styles.cancelModalButton}>
+                                <Text>Cancelar</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </Modal>
             </SafeAreaView>
         </>
     );

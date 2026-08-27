@@ -1,18 +1,22 @@
-import { Tabs, useRouter, useLocalSearchParams } from "expo-router";
+import { Tabs, useRouter, useLocalSearchParams, usePathname } from "expo-router";
 import { Ionicons } from '@expo/vector-icons';
-import { useFocusEffect } from 'expo-router';
+import { useFocusEffect } from '@react-navigation/native';
 import { useCallback } from 'react';
 
 export default function HouseholdLayout() {
     const router = useRouter();
+    const pathname = usePathname();
     const { highlightItem } = useLocalSearchParams();
 
     useFocusEffect(
         useCallback(() => {
-            if (!highlightItem) {
+            const validScreens = ['/index', '/add-item', '/edit-item'];
+            const isValidScreen = validScreens.some(screen => pathname.includes(screen)) || pathname === '/(articulos)';
+
+            if (!highlightItem && !isValidScreen) {
                 router.replace('/(articulos)');
             }
-        }, [highlightItem])
+        }, [highlightItem, pathname])
     );
 
     return (
