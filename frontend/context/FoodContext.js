@@ -215,8 +215,20 @@ export function FoodProvider({ children }) {
         await loadData();
     };
 
+    const updateFood = async (foodId, formData) => {
+        const { name, brand, store, filter, defaultLocation, weightPerUnit, nutritionalInfo, photo } = formData;
+
+        await db.runAsync(
+            `UPDATE Food SET name = ?, brand = ?, store = ?, filter = ?, defaultLocation = ?, weightPerUnit = ?, calories = ?, carbs = ?, protein = ?, fat = ?, fiber = ?, salt = ?, photo = ?
+         WHERE id = ?`,
+            [name, brand, store, filter, defaultLocation, Number(weightPerUnit), Number(nutritionalInfo.Calories), Number(nutritionalInfo.Carbs), Number(nutritionalInfo.Protein), Number(nutritionalInfo.Fat), Number(nutritionalInfo.Fiber), Number(nutritionalInfo.Salt), photo || null, foodId]
+        );
+
+        await loadData();
+    };
+
     return (
-        <FoodContext.Provider value={{ food, setFood, lots, setLots, decreaseServing, increaseServing, increaseShoppingQuantity, decreaseShoppingQuantity, deleteFood, toggleArchiveFood, moveLot, addFood, loadData, addToShoppingList, removeFromShoppingList, addLotsToExistingFood }}>
+        <FoodContext.Provider value={{ food, setFood, lots, setLots, decreaseServing, increaseServing, increaseShoppingQuantity, decreaseShoppingQuantity, deleteFood, toggleArchiveFood, moveLot, addFood, loadData, addToShoppingList, removeFromShoppingList, addLotsToExistingFood, updateFood }}>
             {children}
         </FoodContext.Provider>
     );

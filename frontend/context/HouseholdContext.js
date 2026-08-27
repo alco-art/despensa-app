@@ -92,8 +92,20 @@ export function HouseholdProvider({ children }) {
         await loadItems();
     }
 
+    const updateItem = async (itemId, formData) => {
+        const { name, brand, store, filter, weight, photo } = formData;
+
+        await db.runAsync(
+            `UPDATE Item SET name = ?, brand = ?, store = ?, filter = ?, weight = ?, photo = ?
+         WHERE id = ?`,
+            [name, brand, store, filter, weight ? Number(weight) : null, photo || null, itemId]
+        );
+
+        await loadItems();
+    };
+
     return (
-        <HouseholdContext.Provider value={{ items, loadItems, addItem, decreaseQuantity, increaseQuantity, deleteItem, addItemToShoppingList, removeItemFromShoppingList, confirmPurchaseItem, toggleArchiveItem }}>
+        <HouseholdContext.Provider value={{ items, loadItems, addItem, decreaseQuantity, increaseQuantity, deleteItem, addItemToShoppingList, removeItemFromShoppingList, confirmPurchaseItem, toggleArchiveItem, updateItem }}>
             {children}
         </HouseholdContext.Provider>
     );

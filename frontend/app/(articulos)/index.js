@@ -1,6 +1,6 @@
 import { useState, useContext, useCallback, useEffect } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Modal, Image, ScrollView } from "react-native";
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import HouseholdContext from "../../context/HouseholdContext";
@@ -129,7 +129,7 @@ export default function Household() {
     const [toastVisible, setToastVisible] = useState(false);
     const [toastMessage, setToastMessage] = useState('');
     const { highlightItem } = useLocalSearchParams();
-
+    const router = useRouter();
     const { items, decreaseQuantity, increaseQuantity, deleteItem, addItemToShoppingList, toggleArchiveItem } = useContext(HouseholdContext);
 
     useFocusEffect(
@@ -241,11 +241,17 @@ export default function Household() {
                         </View>
                         {expandedIndex === item.id && (
                             <View style={styles.expandedRow}>
-                                <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 18 }}>
+                                <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 40 }}>
                                     <TouchableOpacity onPress={() => { setSelectedItemInfo(item); setInfoModalVisible(true); }} style={{ flexDirection: 'row', alignItems: 'center' }}>
                                         <Ionicons name="information-circle-outline" size={20} />
                                         <Text style={styles.expandedText}>Info</Text>
                                     </TouchableOpacity>
+                                    <TouchableOpacity onPress={() => { addItemToShoppingList(item.id); showToast(`${item.Name} añadido a la compra`); }} style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                        <Ionicons name="cart-outline" size={20} />
+                                        <Text style={styles.expandedText}>Añadir a la compra</Text>
+                                    </TouchableOpacity>
+                                </View>
+                                <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 30, marginTop: 12 }}>
                                     <TouchableOpacity onPress={() => {
                                         if (item.Quantity === 1) {
                                             showToast(`${item.Name} añadido a la lista de la compra.`);
@@ -261,10 +267,10 @@ export default function Household() {
                                         <Text style={styles.expandedText}>Añadir</Text>
                                     </TouchableOpacity>
                                 </View>
-                                <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 16, marginTop: 12 }}>
-                                    <TouchableOpacity onPress={() => { addItemToShoppingList(item.id); showToast(`${item.Name} añadido a la compra`); }} style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                        <Ionicons name="cart-outline" size={20} />
-                                        <Text style={styles.expandedText}>Añadir a la compra</Text>
+                                <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 30, marginTop: 12 }}>
+                                    <TouchableOpacity onPress={() => router.push(`/(articulos)/edit-item?itemId=${item.id}`)} style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                        <Ionicons name="create-outline" size={20} />
+                                        <Text style={styles.expandedText}>Editar</Text>
                                     </TouchableOpacity>
                                     <TouchableOpacity onPress={() => {
                                         showToast(`${item.Name} eliminado.`);

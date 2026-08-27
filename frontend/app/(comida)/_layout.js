@@ -1,18 +1,22 @@
-import { Tabs, useRouter, useLocalSearchParams } from 'expo-router';
+import { Tabs, useRouter, useLocalSearchParams, usePathname } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from 'expo-router';
 import { useCallback } from 'react';
 
 export default function Layout() {
     const router = useRouter();
+    const pathname = usePathname();
     const { highlightLot } = useLocalSearchParams();
 
     useFocusEffect(
         useCallback(() => {
-            if (!highlightLot) {
+            const validScreens = ['/fridge', '/freezer', '/pantry', '/add-food', '/edit-food'];
+            const isValidScreen = validScreens.some(screen => pathname.includes(screen));
+
+            if (!highlightLot && !isValidScreen) {
                 router.replace('/(comida)/fridge');
             }
-        }, [highlightLot])
+        }, [highlightLot, pathname])
     );
 
     return (
@@ -33,6 +37,7 @@ export default function Layout() {
                 title: 'Añadir',
                 tabBarIcon: ({ color, size }) => <Ionicons name="add-circle" size={size} color={color} /> //nutrition-outline
             }} />
+            <Tabs.Screen name="edit-food" options={{ href: null }} />
         </Tabs>
     );
 }

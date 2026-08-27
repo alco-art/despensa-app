@@ -1,6 +1,6 @@
 import { useState, useContext, useCallback, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Modal, Image } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import FoodContext from '../../context/FoodContext';
@@ -160,6 +160,7 @@ export default function Pantry() {
     const [toastVisible, setToastVisible] = useState(false);
     const [toastMessage, setToastMessage] = useState('');
     const { highlightLot } = useLocalSearchParams();
+    const router = useRouter();
     const { food, setFood, lots, setLots, decreaseServing, increaseServing, deleteFood, moveLot, addToShoppingList, toggleArchiveFood } = useContext(FoodContext);
 
     useFocusEffect(
@@ -276,24 +277,10 @@ export default function Pantry() {
                                 </View>
                                 {expandedIndex === lot.id && (
                                     <View style={styles.expandedRow}>
-                                        <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 9 }}>
+                                        <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 24 }}>
                                             <TouchableOpacity onPress={() => { setSelectedFoodInfo(foodItem); setInfoModalVisible(true) }} style={{ flexDirection: 'row', alignItems: 'center' }}>
                                                 <Ionicons name="information-circle-outline" size={20} />
                                                 <Text style={styles.expandedText}>Info</Text>
-                                            </TouchableOpacity>
-                                            <TouchableOpacity onPress={() => {
-                                                if (lot.Servings === 1) {
-                                                    showToast(`${foodItem.Food} añadido a la lista de la compra.`);
-                                                }
-                                                decreaseServing(lot.id)
-                                            }}
-                                                style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                                <Ionicons name="remove-circle-outline" size={20} />
-                                                <Text style={styles.expandedText}>Restar porción</Text>
-                                            </TouchableOpacity>
-                                            <TouchableOpacity onPress={() => increaseServing(lot.id)} style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                                <Ionicons name="add-circle-outline" size={20} />
-                                                <Text style={styles.expandedText}>Añadir porción</Text>
                                             </TouchableOpacity>
                                             <TouchableOpacity onPress={() => {
                                                 setSelectedLotToMove(lot);
@@ -304,8 +291,6 @@ export default function Pantry() {
                                                 <Ionicons name="swap-horizontal-outline" size={20} />
                                                 <Text style={styles.expandedText}>Mover</Text>
                                             </TouchableOpacity>
-                                        </View>
-                                        <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 16 }}>
                                             <TouchableOpacity onPress={() => {
                                                 if (foodItem.InShoppingList) {
                                                     showToast(`${foodItem.Food} ya está en la lista de la compra.`);
@@ -313,9 +298,31 @@ export default function Pantry() {
                                                     addToShoppingList(foodItem.id);
                                                     showToast(`${foodItem.Food} añadido a la compra.`);
                                                 }
-                                            }} style={{ flexDirection: 'row', alignItems: 'center', marginTop: 12 }}>
+                                            }} style={{ flexDirection: 'row', alignItems: 'center' }}>
                                                 <Ionicons name="cart-outline" size={20} />
                                                 <Text style={styles.expandedText}>Añadir a la compra</Text>
+                                            </TouchableOpacity>
+                                        </View>
+                                        <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 26 }}>
+                                            <TouchableOpacity onPress={() => {
+                                                if (lot.Servings === 1) {
+                                                    showToast(`${foodItem.Food} añadido a la lista de la compra.`);
+                                                }
+                                                decreaseServing(lot.id)
+                                            }}
+                                                style={{ flexDirection: 'row', alignItems: 'center', marginTop: 12 }}>
+                                                <Ionicons name="remove-circle-outline" size={20} />
+                                                <Text style={styles.expandedText}>Restar porción</Text>
+                                            </TouchableOpacity>
+                                            <TouchableOpacity onPress={() => increaseServing(lot.id)} style={{ flexDirection: 'row', alignItems: 'center', marginTop: 12 }}>
+                                                <Ionicons name="add-circle-outline" size={20} />
+                                                <Text style={styles.expandedText}>Añadir porción</Text>
+                                            </TouchableOpacity>
+                                        </View>
+                                        <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 28 }}>
+                                            <TouchableOpacity onPress={() => router.push(`/(comida)/edit-food?foodId=${foodItem.id}`)} style={{ flexDirection: 'row', alignItems: 'center', marginTop: 12 }}>
+                                                <Ionicons name="create-outline" size={20} />
+                                                <Text style={styles.expandedText}>Editar</Text>
                                             </TouchableOpacity>
                                             <TouchableOpacity onPress={() => {
                                                 showToast(`${foodItem.Food} eliminado.`);

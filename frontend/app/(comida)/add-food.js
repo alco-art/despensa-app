@@ -140,22 +140,41 @@ export default function AddFood() {
         Pantry: "Despensa"
     }
 
-    const pickImage = async () => {
-        const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    const pickImage = () => {
+        Alert.alert(
+            'Añadir foto',
+            '¿Cómo quieres añadir la foto?',
+            [
+                { text: 'Cámara', onPress: takePhoto },
+                { text: 'Galería', onPress: pickFromGallery },
+                { text: 'Cancelar', style: 'cancel' }
+            ]
+        );
+    };
+
+    const takePhoto = async () => {
+        const permission = await ImagePicker.requestCameraPermissionsAsync();
         if (!permission.granted) {
-            Alert.alert('Permiso necesario.', 'Necesitamos acceso a tus fotos para añadir una imagen.');
+            Alert.alert('Permiso necesario', 'Necesitamos acceso a tu cámara para hacer la foto.');
             return;
         }
-
-        const result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ['images'],
-            quality: 0.5
-        });
-
+        const result = await ImagePicker.launchCameraAsync({ mediaTypes: ['images'], quality: 0.5 });
         if (!result.canceled) {
             setPhoto(result.assets[0].uri);
         }
-    }
+    };
+
+    const pickFromGallery = async () => {
+        const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (!permission.granted) {
+            Alert.alert('Permiso necesario', 'Necesitamos acceso a tus fotos para añadir una imagen.');
+            return;
+        }
+        const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 0.5 });
+        if (!result.canceled) {
+            setPhoto(result.assets[0].uri);
+        }
+    };
 
     useEffect(() => {
         const showSub = Keyboard.addListener('keyboardDidShow', () => setKeyboardVisible(true));

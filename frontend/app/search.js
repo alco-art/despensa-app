@@ -112,6 +112,10 @@ const styles = StyleSheet.create({
         marginTop: 8,
         borderWidth: 1,
         borderColor: '#999'
+    },
+    editCell: {
+        width: 17,
+        alignItems: 'center'
     }
 });
 
@@ -200,7 +204,7 @@ export default function Search() {
             showToast('Este producto está archivado.');
             return;
         }
-        
+
         if (!item.available) {
             showToast('No hay stock de este producto.');
             return;
@@ -277,6 +281,7 @@ export default function Search() {
                         <Text style={styles.headerText}>Tienda</Text>
                         {getSortIcon('store') && <Ionicons name={getSortIcon('store')} size={14} color="#ffffff" />}
                     </TouchableOpacity>
+                    <View style={styles.editCell} />
                 </View>
 
                 {sortedResults.map((item, index) => (
@@ -290,6 +295,19 @@ export default function Search() {
                         <Text style={styles.cell}>{item.name}</Text>
                         <Text style={styles.cell}>{item.brand}</Text>
                         <Text style={styles.cell}>{item.store || '-'}</Text>
+                        <TouchableOpacity
+                            onPress={(e) => {
+                                e.stopPropagation();
+                                if (item.type === 'food') {
+                                    router.push(`/(comida)/edit-food?foodId=${item.id}`);
+                                } else {
+                                    router.push(`/(articulos)/edit-item?itemId=${item.id}`);
+                                }
+                            }}
+                            style={styles.editCell}
+                        >
+                            <Ionicons name="create-outline" size={18} color="#4a5a6a" />
+                        </TouchableOpacity>
                     </TouchableOpacity>
                 ))}
 

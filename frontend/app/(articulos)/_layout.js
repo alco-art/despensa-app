@@ -25,6 +25,7 @@ export default function HouseholdLayout() {
                 title: 'Añadir artículo',
                 tabBarIcon: ({ color, size }) => <Ionicons name="add-circle" size={size} color={color} />
             }} />
+            <Tabs.Screen name="edit-item" options={{ href: null }} />
         </Tabs>
     );
 }
