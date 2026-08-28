@@ -130,7 +130,7 @@ const styles = StyleSheet.create({
 export default function EditFood() {
     const { foodId } = useLocalSearchParams();
     const router = useRouter();
-    const { food, updateFood } = useContext(FoodContext);
+    const { food, updateFood, photos, addPhoto, deletePhoto } = useContext(FoodContext);
 
     const [name, setName] = useState('');
     const [brand, setBrand] = useState('');
@@ -138,7 +138,8 @@ export default function EditFood() {
     const [filter, setFilter] = useState('');
     const [defaultLocation, setDefaultLocation] = useState('');
     const [weightPerUnit, setWeightPerUnit] = useState('');
-    const [photo, setPhoto] = useState(null);
+    const [existingPhotos, setExistingPhotos] = useState([]);
+    const [newPhotos, setNewPhotos] = useState([]);
     const [nutritionalInfo, setNutritionalInfo] = useState({
         Calories: '', Carbs: '', Protein: '', Fat: '', Fiber: '', Salt: ''
     });
@@ -163,7 +164,7 @@ export default function EditFood() {
         }
         const result = await ImagePicker.launchCameraAsync({ mediaTypes: ['images'], quality: 0.5 });
         if (!result.canceled) {
-            setPhoto(result.assets[0].uri);
+            setNewPhotos([...newPhotos, result.assets[0].uri]);
         }
     };
 
@@ -176,8 +177,12 @@ export default function EditFood() {
         }
         const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 0.5 });
         if (!result.canceled) {
-            setPhoto(result.assets[0].uri);
+            setNewPhotos([...newPhotos, result.assets[0].uri]);
         }
+    };
+
+    const removeNewPhoto = (uri) => {
+        setNewPhotos(newPhotos.filter(p => p !== uri));
     };
 
     useEffect(() => {
@@ -195,7 +200,6 @@ export default function EditFood() {
             setFilter(foodItem.Filter || '');
             setDefaultLocation(foodItem.DefaultLocation || '');
             setWeightPerUnit(foodItem.weightPerUnit ? String(foodItem.weightPerUnit) : '');
-            setPhoto(foodItem.Photo || null);
             setNutritionalInfo({
                 Calories: foodItem.NutritionalInfo ? String(foodItem.NutritionalInfo.Calories) : '',
                 Carbs: foodItem.NutritionalInfo ? String(foodItem.NutritionalInfo.Carbs) : '',
@@ -205,14 +209,21 @@ export default function EditFood() {
                 Salt: foodItem.NutritionalInfo ? String(foodItem.NutritionalInfo.Salt) : ''
             });
         }
-    }, [foodId, food]);
+        setExistingPhotos(photos.filter(p => p.ParentId === Number(foodId)));
+    }, [foodId, food, photos]);
 
     const handleSubmit = async () => {
         if (!name || !brand || !store || !defaultLocation || !weightPerUnit || !nutritionalInfo.Calories) {
             Alert.alert('Faltan datos', 'Rellena nombre, marca, tienda, ubicación, peso y calorías.');
             return;
         }
-        await updateFood(Number(foodId), { name, brand, store, filter, defaultLocation, weightPerUnit, nutritionalInfo, photo });
+        await updateFood(Number(foodId), { name, brand, store, filter, defaultLocation, weightPerUnit, nutritionalInfo });
+
+        for (const uri of newPhotos) {
+            await addPhoto(Number(foodId), uri);
+        }
+        setNewPhotos([]);
+
         Alert.alert('Guardado', 'Cambios guardados correctamente.');
         router.back();
     };
@@ -271,13 +282,36 @@ export default function EditFood() {
                             <TextInput value={weightPerUnit} onChangeText={setWeightPerUnit} placeholder="Ej: 250" placeholderTextColor="#999" style={styles.input} keyboardType="numeric" />
                         </View>
                         <View style={styles.fieldGroup}>
-                            <Text style={styles.label}>Foto (opcional)</Text>
+                            <Text style={styles.label}>Fotos</Text>
                             <TouchableOpacity onPress={pickImage} style={styles.filterButton}>
-                                <Text>{photo ? 'Cambiar foto' : 'Seleccionar foto'}</Text>
+                                <Text>Añadir fotos</Text>
                                 <Ionicons name="camera-outline" size={16} />
                             </TouchableOpacity>
-                            {photo && (
-                                <Image source={{ uri: photo }} style={{ width: 100, height: 100, borderRadius: 8, marginTop: 8 }} />
+                            {(existingPhotos.length > 0 || newPhotos.length > 0) && (
+                                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 8 }}>
+                                    {existingPhotos.map((p) => (
+                                        <View key={p.id} style={{ position: 'relative' }}>
+                                            <Image source={{ uri: p.Uri }} style={{ width: 80, height: 80, borderRadius: 8 }} />
+                                            <TouchableOpacity
+                                                onPress={() => deletePhoto(p.id)}
+                                                style={{ position: 'absolute', top: -6, right: -6, backgroundColor: '#e74c3c', borderRadius: 10 }}
+                                            >
+                                                <Ionicons name="close" size={16} color="#fff" />
+                                            </TouchableOpacity>
+                                        </View>
+                                    ))}
+                                    {newPhotos.map((uri, index) => (
+                                        <View key={index} style={{ position: 'relative' }}>
+                                            <Image source={{ uri }} style={{ width: 80, height: 80, borderRadius: 8 }} />
+                                            <TouchableOpacity
+                                                onPress={() => removeNewPhoto(uri)}
+                                                style={{ position: 'absolute', top: -6, right: -6, backgroundColor: '#e74c3c', borderRadius: 10 }}
+                                            >
+                                                <Ionicons name="close" size={16} color="#fff" />
+                                            </TouchableOpacity>
+                                        </View>
+                                    ))}
+                                </View>
                             )}
                         </View>
                         <View>
