@@ -129,8 +129,9 @@ export default function Household() {
     const [toastVisible, setToastVisible] = useState(false);
     const [toastMessage, setToastMessage] = useState('');
     const { highlightItem } = useLocalSearchParams();
+    const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
     const router = useRouter();
-    const { items, decreaseQuantity, increaseQuantity, deleteItem, addItemToShoppingList, toggleArchiveItem } = useContext(HouseholdContext);
+    const { items, decreaseQuantity, increaseQuantity, deleteItem, addItemToShoppingList, toggleArchiveItem, photos, deletePhoto, setPrimaryPhoto } = useContext(HouseholdContext);
 
     useFocusEffect(
         useCallback(() => {
@@ -197,6 +198,8 @@ export default function Household() {
         });
     }
 
+    const selectedItemPhotos = selectedItemInfo ? photos.filter(p => p.ParentId === selectedItemInfo.id) : [];
+
     return (
         <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.container} persistentScrollbar={true} indicatorStyle="black">
             <TouchableOpacity onPress={() => setFilterOpen(!filterOpen)} style={styles.filterButton}>
@@ -242,7 +245,7 @@ export default function Household() {
                         {expandedIndex === item.id && (
                             <View style={styles.expandedRow}>
                                 <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 40 }}>
-                                    <TouchableOpacity onPress={() => { setSelectedItemInfo(item); setInfoModalVisible(true); }} style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                    <TouchableOpacity onPress={() => { setSelectedItemInfo(item); setCurrentPhotoIndex(0); setInfoModalVisible(true); }} style={{ flexDirection: 'row', alignItems: 'center' }}>
                                         <Ionicons name="information-circle-outline" size={20} />
                                         <Text style={styles.expandedText}>Info</Text>
                                     </TouchableOpacity>
@@ -312,10 +315,49 @@ export default function Household() {
                                 {selectedItemInfo.Weight != null && (
                                     <Text>Peso: {selectedItemInfo.Weight} g</Text>
                                 )}
-                                {selectedItemInfo.Photo && (
-                                    <TouchableOpacity onPress={() => setImageFullscreenVisible(true)}>
-                                        <Image source={{ uri: selectedItemInfo.Photo }} style={styles.modalImage} />
-                                    </TouchableOpacity>
+                                {selectedItemPhotos.length > 0 && (
+                                    <View>
+                                        <ScrollView
+                                            horizontal
+                                            pagingEnabled
+                                            showsHorizontalScrollIndicator={false}
+                                            onMomentumScrollEnd={(e) => {
+                                                const index = Math.round(e.nativeEvent.contentOffset.x / 260);
+                                                setCurrentPhotoIndex(index);
+                                            }}
+                                        >
+                                            {selectedItemPhotos.map((photo) => (
+                                                <View key={photo.id} style={{ width: 260, marginRight: 8 }}>
+                                                    <TouchableOpacity onPress={() => setImageFullscreenVisible(true)}>
+                                                        <Image source={{ uri: photo.Uri }} style={styles.modalImage} />
+                                                    </TouchableOpacity>
+                                                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 4 }}>
+                                                        <TouchableOpacity
+                                                            onPress={() => setPrimaryPhoto(selectedItemInfo.id, photo.id)}
+                                                            style={{ flexDirection: 'row', alignItems: 'center' }}
+                                                        >
+                                                            <Ionicons name={photo.IsPrimary ? "star" : "star-outline"} size={16} color="#f4c95d" />
+                                                            <Text style={{ fontSize: 12, marginLeft: 4 }}>{photo.IsPrimary ? 'Principal' : 'Marcar principal'}</Text>
+                                                        </TouchableOpacity>
+                                                        <TouchableOpacity onPress={() => deletePhoto(photo.id)}>
+                                                            <Ionicons name="trash-outline" size={16} color="#e74c3c" />
+                                                        </TouchableOpacity>
+                                                    </View>
+                                                </View>
+                                            ))}
+                                        </ScrollView>
+                                        <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 4, marginTop: 4 }}>
+                                            {selectedItemPhotos.map((_, index) => (
+                                                <View
+                                                    key={index}
+                                                    style={{
+                                                        width: 6, height: 6, borderRadius: 3,
+                                                        backgroundColor: index === currentPhotoIndex ? '#4a5a6a' : '#ccc'
+                                                    }}
+                                                />
+                                            ))}
+                                        </View>
+                                    </View>
                                 )}
                                 <TouchableOpacity onPress={() => setInfoModalVisible(false)} style={styles.modalCloseButton}>
                                     <Text style={{ color: '#fff' }}>Cerrar</Text>
@@ -335,8 +377,8 @@ export default function Household() {
                     <View style={styles.fullscreenCloseButton}>
                         <Ionicons name="close" size={28} color="#fff" />
                     </View>
-                    {selectedItemInfo?.Photo && (
-                        <Image source={{ uri: selectedItemInfo.Photo }} style={styles.fullscreenImage} resizeMode="contain" />
+                    {selectedItemPhotos[currentPhotoIndex] && (
+                        <Image source={{ uri: selectedItemPhotos[currentPhotoIndex].Uri }} style={styles.fullscreenImage} resizeMode="contain" />
                     )}
                 </TouchableOpacity>
             </Modal>
