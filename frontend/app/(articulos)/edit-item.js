@@ -115,14 +115,15 @@ const filterOptions = ["Limpieza", "Higiene", "Hogar", "Otros"];
 export default function EditItem() {
     const { itemId } = useLocalSearchParams();
     const router = useRouter();
-    const { items, updateItem } = useContext(HouseholdContext);
+    const { items, updateItem, photos, addPhoto, deletePhoto } = useContext(HouseholdContext);
 
     const [name, setName] = useState('');
     const [brand, setBrand] = useState('');
     const [store, setStore] = useState('');
     const [filter, setFilter] = useState('');
     const [weight, setWeight] = useState('');
-    const [photo, setPhoto] = useState(null);
+    const [existingPhotos, setExistingPhotos] = useState([]);
+    const [newPhotos, setNewPhotos] = useState([]);
     const [filterOpen, setFilterOpen] = useState(false);
     const [keyboardVisible, setKeyboardVisible] = useState(false);
     const [photoOptionsVisible, setPhotoOptionsVisible] = useState(false);
@@ -140,7 +141,7 @@ export default function EditItem() {
         }
         const result = await ImagePicker.launchCameraAsync({ mediaTypes: ['images'], quality: 0.5 });
         if (!result.canceled) {
-            setPhoto(result.assets[0].uri);
+            setNewPhotos([...newPhotos, result.assets[0].uri]);
         }
     };
 
@@ -153,8 +154,12 @@ export default function EditItem() {
         }
         const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 0.5 });
         if (!result.canceled) {
-            setPhoto(result.assets[0].uri);
+            setNewPhotos([...newPhotos, result.assets[0].uri]);
         }
+    };
+
+    const removeNewPhoto = (uri) => {
+        setNewPhotos(newPhotos.filter(p => p !== uri));
     };
 
     useEffect(() => {
@@ -171,16 +176,22 @@ export default function EditItem() {
             setStore(item.Store || '');
             setFilter(item.Filter);
             setWeight(item.Weight ? String(item.Weight) : '');
-            setPhoto(item.Photo || null);
         }
-    }, [itemId, items]);
+        setExistingPhotos(photos.filter(p => p.ParentId === Number(itemId)));
+    }, [itemId, items, photos]);
 
     const handleSubmit = async () => {
         if (!name || !brand || !store || !filter) {
             Alert.alert('Faltan datos', 'Rellena nombre, marca, tienda y filtro.');
             return;
         }
-        await updateItem(Number(itemId), { name, brand, store, filter, weight, photo });
+        await updateItem(Number(itemId), { name, brand, store, filter, weight });
+
+        for (const uri of newPhotos) {
+            await addPhoto(Number(itemId), uri);
+        }
+        setNewPhotos([]);
+
         Alert.alert('Guardado', 'Cambios guardados correctamente.');
         router.back();
     };
@@ -221,13 +232,36 @@ export default function EditItem() {
                     <TextInput value={weight} onChangeText={setWeight} placeholder="Ej: 250 (g/ml)" placeholderTextColor="#999" style={styles.input} keyboardType="numeric" />
                 </View>
                 <View style={styles.fieldGroup}>
-                    <Text style={styles.label}>Foto (opcional)</Text>
+                    <Text style={styles.label}>Fotos</Text>
                     <TouchableOpacity onPress={pickImage} style={styles.filterButton}>
-                        <Text>{photo ? 'Cambiar foto' : 'Seleccionar foto'}</Text>
+                        <Text>Añadir foto</Text>
                         <Ionicons name="camera-outline" size={16} />
                     </TouchableOpacity>
-                    {photo && (
-                        <Image source={{ uri: photo }} style={{ width: 100, height: 100, borderRadius: 8, marginTop: 8 }} />
+                    {(existingPhotos.length > 0 || newPhotos.length > 0) && (
+                        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 8 }}>
+                            {existingPhotos.map((p) => (
+                                <View key={p.id} style={{ position: 'relative' }}>
+                                    <Image source={{ uri: p.Uri }} style={{ width: 80, height: 80, borderRadius: 8 }} />
+                                    <TouchableOpacity
+                                        onPress={() => deletePhoto(p.id)}
+                                        style={{ position: 'absolute', top: -6, right: -6, backgroundColor: '#e74c3c', borderRadius: 10 }}
+                                    >
+                                        <Ionicons name="close" size={16} color="#fff" />
+                                    </TouchableOpacity>
+                                </View>
+                            ))}
+                            {newPhotos.map((uri, index) => (
+                                <View key={index} style={{ position: 'relative' }}>
+                                    <Image source={{ uri }} style={{ width: 80, height: 80, borderRadius: 8 }} />
+                                    <TouchableOpacity
+                                        onPress={() => removeNewPhoto(uri)}
+                                        style={{ position: 'absolute', top: -6, right: -6, backgroundColor: '#e74c3c', borderRadius: 10 }}
+                                    >
+                                        <Ionicons name="close" size={16} color="#fff" />
+                                    </TouchableOpacity>
+                                </View>
+                            ))}
+                        </View>
                     )}
                 </View>
             </ScrollView>

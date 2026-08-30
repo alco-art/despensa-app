@@ -174,8 +174,8 @@ const styles = StyleSheet.create({
 });
 
 export default function ShoppingList() {
-    const { food, increaseShoppingQuantity, decreaseShoppingQuantity, removeFromShoppingList } = useContext(FoodContext);
-    const { items, increaseQuantity, decreaseQuantity, removeItemFromShoppingList } = useContext(HouseholdContext);
+    const { food, increaseShoppingQuantity, decreaseShoppingQuantity, removeFromShoppingList, photos: foodPhotos } = useContext(FoodContext);
+    const { items, increaseQuantity, decreaseQuantity, removeItemFromShoppingList, photos: itemPhotos } = useContext(HouseholdContext);
     const [checkedItems, setCheckedItems] = useState([]);
     const [shoppingMode, setShoppingMode] = useState(false);
     const [storeDirection, setStoreDirection] = useState(null);
@@ -197,7 +197,10 @@ export default function ShoppingList() {
     );
 
     const foodInList = food.filter(f => f.InShoppingList === 1 || f.InShoppingList === true);
+    
     const foodItems = foodInList.map(f => {
+        const primaryPhoto = foodPhotos.find(p => p.ParentId === f.id && p.IsPrimary);
+
         return {
             key: `food-${f.id}`,
             id: f.id,
@@ -207,12 +210,15 @@ export default function ShoppingList() {
             filter: f.Filter,
             quantity: f.ShoppingQuantity || 1,
             store: f.Store,
-            photo: f.Photo
+            photo: primaryPhoto ? primaryPhoto.Uri : null
         };
     });
 
     const itemsInList = items.filter(i => i.InShoppingList);
+    
     const householdItems = itemsInList.map(i => {
+        const primaryPhoto = itemPhotos.find(p => p.ParentId === i.id && p.IsPrimary);
+
         return {
             key: `item-${i.id}`,
             id: i.id,
@@ -222,7 +228,7 @@ export default function ShoppingList() {
             filter: i.Filter,
             quantity: i.Quantity || 1,
             store: i.Store,
-            photo: i.Photo
+            photo: primaryPhoto ? primaryPhoto.Uri : null
         };
     });
 
