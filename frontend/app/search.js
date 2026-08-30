@@ -116,6 +116,15 @@ const styles = StyleSheet.create({
     editCell: {
         width: 17,
         alignItems: 'center'
+    },
+    photoCell: {
+        width: 34,
+        alignItems: 'center'
+    },
+    rowThumbnail: {
+        width: 28,
+        height: 28,
+        borderRadius: 4
     }
 });
 
@@ -273,6 +282,7 @@ export default function Search() {
             <ScrollView persistentScrollbar={true} indicatorStyle="black" contentContainerStyle={{ paddingBottom: 60 }}>
                 <View style={styles.headerRow}>
                     <Text style={[styles.availabilityCell, styles.headerText]}>Stock</Text>
+                    <View style={styles.photoCell} />
                     <TouchableOpacity style={[styles.cell, { flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }]} onPress={() => sortResults('name')}>
                         <Text style={styles.headerText}>Nombre</Text>
                         {getSortIcon('name') && <Ionicons name={getSortIcon('name')} size={14} color="#ffffff" />}
