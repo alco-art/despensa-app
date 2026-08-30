@@ -413,7 +413,6 @@ export default function ShoppingList() {
                             <Text style={styles.sectionTitle}>{section}</Text>
                             <View style={styles.subHeaderRow}>
                                 <View style={styles.checkboxCell} />
-                                {/**hecho. he quitado ese subHeaderRow y ya se ve bien. */}
                                 <Text style={[styles.quantityCell, styles.headerText, { width: 44, paddingHorizontal: 2, flex: 0 }]}>Cant.</Text>
                                 <Text style={[styles.cell, styles.headerText]}>Nombre</Text>
                                 <Text style={[styles.cell, styles.headerText]}>Marca (Tienda)</Text>

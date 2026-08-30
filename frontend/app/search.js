@@ -1,5 +1,5 @@
 import { useState, useContext, useCallback, useEffect } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Modal } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Modal, Image } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { useRouter } from "expo-router";
 import { Ionicons } from '@expo/vector-icons';
@@ -121,8 +121,8 @@ const styles = StyleSheet.create({
 
 export default function Search() {
     const router = useRouter();
-    const { food, lots } = useContext(FoodContext);
-    const { items } = useContext(HouseholdContext);
+    const { food, lots, photos: foodPhotos } = useContext(FoodContext);
+    const { items, photos: itemPhotos } = useContext(HouseholdContext);
     const [query, setQuery] = useState('');
     const [locationModalVisible, setLocationModalVisible] = useState(false);
     const [selectedItemForModal, setSelectedItemForModal] = useState(null);
@@ -146,7 +146,8 @@ export default function Search() {
     // --- COMBINAR COMIDA Y ARTÍCULOS ---
     const foodResults = food.map(f => {
         const activeLots = lots.filter(lot => lot.FoodId === f.id && !lot.Deleted);
-        const locations = [...new Set(activeLots.map(lot => lot.Location))]
+        const locations = [...new Set(activeLots.map(lot => lot.Location))];
+        const primaryPhoto = foodPhotos.find(p => p.ParendId === f.id && p.IsPrimary);
         return {
             id: f.id,
             type: 'food',
@@ -156,13 +157,15 @@ export default function Search() {
             available: activeLots.length > 0,
             archived: f.Archived,
             locations,
-            lots: activeLots
+            lots: activeLots,
+            photo: primaryPhoto ? primaryPhoto.Uri : null
         };
     });
 
     const itemResults = items
         .filter(i => !i.Deleted)
         .map(i => {
+            const primaryPhoto = itemPhotos.find(p => p.ParentId === i.id && p.IsPrimary);
             return {
                 id: i.id,
                 type: 'item',
@@ -170,7 +173,8 @@ export default function Search() {
                 brand: i.Brand,
                 store: i.Store,
                 available: i.Quantity > 0,
-                archived: i.Archived
+                archived: i.Archived,
+                photo: primaryPhoto ? primaryPhoto.Uri : null
             };
         });
 
@@ -291,6 +295,11 @@ export default function Search() {
                         onPress={() => handleResultPress(item)}>
                         <View style={styles.availabilityCell}>
                             <View style={[styles.dot, { backgroundColor: item.archived ? '#999' : (item.available ? '#2ecc71' : '#e74c3c') }]} />
+                        </View>
+                        <View style={styles.photoCell}>
+                            {item.photo && (
+                                <Image source={{ uri: item.photo }} style={styles.rowThumbnail} />
+                            )}
                         </View>
                         <Text style={styles.cell}>{item.name}</Text>
                         <Text style={styles.cell}>{item.brand}</Text>
