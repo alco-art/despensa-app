@@ -298,10 +298,12 @@ export default function Search() {
                     <View style={styles.editCell} />
                 </View>
 
-                {sortedResults.map((item, index) => (
+                {sortedResults.map((item, index) => {
+                    const isLast = index === sortedResults.length - 1;
+                    return (
                     <TouchableOpacity
                         key={`${item.type}-${item.id}`}
-                        style={[styles.row, { backgroundColor: index % 2 === 0 ? '#ffffff' : '#f0f4f7' }]}
+                        style={[styles.row, { backgroundColor: index % 2 === 0 ? '#ffffff' : '#f0f4f7' }, isLast && { borderBottomLeftRadius: 8, borderBottomRightRadius: 8 }]}
                         onPress={() => handleResultPress(item)}>
                         <View style={styles.availabilityCell}>
                             <View style={[styles.dot, { backgroundColor: item.archived ? '#999' : (item.available ? '#2ecc71' : '#e74c3c') }]} />
@@ -328,7 +330,7 @@ export default function Search() {
                             <Ionicons name="create-outline" size={18} color="#4a5a6a" />
                         </TouchableOpacity>
                     </TouchableOpacity>
-                ))}
+                )})}
 
                 {sortedResults.length === 0 && (
                     <View style={styles.emptyRow}>
