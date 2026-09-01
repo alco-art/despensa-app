@@ -457,6 +457,7 @@ export default function Pantry() {
                                         onPress={async () => {
                                             if (!moveDestination) return;
                                             await moveLot(selectedLotToMove.id, moveQuantity, moveDestination);
+                                            showToast(`Movido a ${locationLabels[moveDestination]}.`);
                                             setMoveModalVisible(false);
                                         }}
                                         style={styles.modalCloseButton}
